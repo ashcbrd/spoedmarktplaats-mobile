@@ -27,7 +27,7 @@ Environment variables are loaded via `app.config.js` and exposed through `src/co
 
 `.env` keys:
 
-- `API_BASE_URL` (default `http://localhost:3000`)
+- `API_BASE_URL` (default `http://localhost:3000/api`)
 - `WS_URL` (default `ws://localhost:3000/chat`)
 - `ENVIRONMENT` (`development` | `staging` | `production`)
 

@@ -2,6 +2,8 @@ import axios, {AxiosInstance, InternalAxiosRequestConfig} from 'axios';
 import {ENV} from '../config/env';
 import {useAuthStore} from '../store/authStore';
 
+const SESSION_IDLE_LIMIT_MS = 15 * 60 * 1000;
+
 const createApiClient = (): AxiosInstance => {
   const client = axios.create({
     baseURL: ENV.API_BASE_URL,
@@ -11,16 +13,27 @@ const createApiClient = (): AxiosInstance => {
 
   // ── Attach token ────────────────────────
   client.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-    const {token} = useAuthStore.getState();
+    const {token, clearAuth, hasSessionExpired, touchSession} = useAuthStore.getState();
+
+    if (hasSessionExpired(SESSION_IDLE_LIMIT_MS)) {
+      clearAuth();
+      return Promise.reject(new Error('Session expired due to inactivity'));
+    }
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      touchSession();
     }
+
     return config;
   });
 
   // ── Refresh on 401 ─────────────────────
   client.interceptors.response.use(
-    res => res,
+    res => {
+      useAuthStore.getState().touchSession();
+      return res;
+    },
     async error => {
       const orig = error.config;
       if (error.response?.status === 401 && !orig._retry) {

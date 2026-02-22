@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StatusBar, useColorScheme, View } from 'react-native';
+import { AppState, StatusBar, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -7,6 +7,7 @@ import { GestureHandlerRootView as GHRootView } from 'react-native-gesture-handl
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { RootNavigator } from './src/navigation/RootNavigator';
+import { useAuthStore } from './src/store/authStore';
 import { theme } from './src/theme/theme';
 
 const GestureHandlerRootView = GHRootView ?? View;
@@ -24,6 +25,8 @@ const queryClient = new QueryClient({
   },
 });
 
+const SESSION_IDLE_LIMIT_MS = 15 * 60 * 1000;
+
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
 
@@ -37,6 +40,19 @@ function App() {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
+
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', state => {
+      if (state !== 'active') return;
+
+      const {hasSessionExpired, clearAuth} = useAuthStore.getState();
+      if (hasSessionExpired(SESSION_IDLE_LIMIT_MS)) {
+        clearAuth();
+      }
+    });
+
+    return () => sub.remove();
+  }, []);
 
   if (!fontsLoaded) {
     return null;
