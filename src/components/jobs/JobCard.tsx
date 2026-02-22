@@ -7,7 +7,7 @@ import {UrgencyTimer} from './UrgencyTimer';
 import {colors} from '../../theme/colors';
 import {typography} from '../../theme/typography';
 import {spacing} from '../../theme/spacing';
-import {formatBudget} from '../../utils/formatters';
+import {formatBidCount, formatBudget} from '../../utils/formatters';
 import {SUBCATEGORIES} from '../../config/constants';
 import type {Job} from '../../types/models';
 
@@ -68,7 +68,7 @@ export const JobCard: React.FC<Props> = ({job, onPress}) => {
           <View style={styles.metaItem}>
             <Icon name="hand-back-right" size={14} color={colors.primary} />
             <Text style={[styles.metaText, {color: colors.primary}]}>
-              {job.bidsCount} bod{job.bidsCount !== 1 ? 'en' : ''}
+              {formatBidCount(job.bidsCount ?? 0)}
             </Text>
           </View>
         )}

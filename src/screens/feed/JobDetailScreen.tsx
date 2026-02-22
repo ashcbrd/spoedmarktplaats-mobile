@@ -22,7 +22,12 @@ import { Card } from '../../components/common/Card';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 import { spacing, borderRadius } from '../../theme/spacing';
-import { formatBudget } from '../../utils/formatters';
+import {
+  formatBidCount,
+  formatBudget,
+  formatWorkersNeeded,
+  formatWorkersRequired,
+} from '../../utils/formatters';
 import { isExpired, getUrgencyLabel } from '../../utils/date';
 import { SUBCATEGORIES } from '../../config/constants';
 import type { FeedStackParamList } from '../../types/navigation';
@@ -140,11 +145,10 @@ export const JobDetailScreen: React.FC = () => {
           <Text style={styles.sectionTitle}>Personeel</Text>
           <View style={styles.workerRow}>
             <Icon name="account-group" size={18} color={colors.textSecondary} />
-            <Text style={styles.workerText}>
-              {job.workersNeeded} werknemer{job.workersNeeded !== 1 ? 's' : ''}{' '}
-              nodig
-            </Text>
-          </View>
+              <Text style={styles.workerText}>
+                {formatWorkersRequired(job.workersNeeded)}
+              </Text>
+            </View>
           {(job.acceptedCrewTotal ?? 0) > 0 && (
             <View style={styles.staffingRow}>
               <View style={styles.staffingBar}>
@@ -162,7 +166,10 @@ export const JobDetailScreen: React.FC = () => {
                 />
               </View>
               <Text style={styles.staffingText}>
-                {job.acceptedCrewTotal}/{job.workersNeeded} ingevuld
+                {formatWorkersNeeded(
+                  job.workersNeeded,
+                  job.acceptedCrewTotal ?? 0,
+                )}
               </Text>
             </View>
           )}
@@ -170,8 +177,7 @@ export const JobDetailScreen: React.FC = () => {
             <View style={styles.bidCountRow}>
               <Icon name="hand-back-right" size={16} color={colors.primary} />
               <Text style={styles.bidCountText}>
-                {job.bidsCount} bod{(job.bidsCount ?? 0) !== 1 ? 'en' : ''}{' '}
-                ontvangen
+                {formatBidCount(job.bidsCount ?? 0)}
               </Text>
             </View>
           )}

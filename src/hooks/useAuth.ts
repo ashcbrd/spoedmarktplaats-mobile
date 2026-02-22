@@ -4,10 +4,12 @@ import { useCreditsStore } from '../store/creditsStore';
 import { authApi } from '../api/endpoints/auth';
 import { creditsApi } from '../api/endpoints/credits';
 import { showErrorAlert } from '../utils/errorHandling';
+import { useI18n } from '../i18n/I18nProvider';
 
 export const useAuth = () => {
   const store = useAuthStore();
   const queryClient = useQueryClient();
+  const { t } = useI18n();
 
   const loginMutation = useMutation({
     mutationFn: authApi.login,
@@ -17,7 +19,7 @@ export const useAuth = () => {
       const { balance } = await creditsApi.balance();
       useCreditsStore.getState().setBalance(balance);
     },
-    onError: e => showErrorAlert(e, 'Inloggen mislukt'),
+    onError: e => showErrorAlert(e, t('Inloggen mislukt')),
   });
 
   const signupMutation = useMutation({
@@ -27,18 +29,18 @@ export const useAuth = () => {
       store.setUser(data.user);
       useCreditsStore.getState().setBalance(3); // 3 free credits
     },
-    onError: e => showErrorAlert(e, 'Registratie mislukt'),
+    onError: e => showErrorAlert(e, t('Registratie mislukt')),
   });
 
   const sendOtpMutation = useMutation({
     mutationFn: authApi.sendOtp,
-    onError: e => showErrorAlert(e, 'OTP versturen mislukt'),
+    onError: e => showErrorAlert(e, t('OTP versturen mislukt')),
   });
 
   const verifyPhoneMutation = useMutation({
     mutationFn: authApi.verifyPhone,
     onSuccess: () => store.updateUser({ phoneVerified: true }),
-    onError: e => showErrorAlert(e, 'Verificatie mislukt'),
+    onError: e => showErrorAlert(e, t('Verificatie mislukt')),
   });
 
   const logout = () => {

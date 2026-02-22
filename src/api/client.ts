@@ -1,5 +1,6 @@
 import axios, {AxiosInstance, InternalAxiosRequestConfig} from 'axios';
 import {ENV} from '../config/env';
+import {getRuntimeLanguage} from '../i18n/runtimeLanguage';
 import {useAuthStore} from '../store/authStore';
 
 const SESSION_IDLE_LIMIT_MS = 15 * 60 * 1000;
@@ -17,7 +18,13 @@ const createApiClient = (): AxiosInstance => {
 
     if (hasSessionExpired(SESSION_IDLE_LIMIT_MS)) {
       clearAuth();
-      return Promise.reject(new Error('Session expired due to inactivity'));
+      return Promise.reject(
+        new Error(
+          getRuntimeLanguage() === 'en'
+            ? 'Session expired due to inactivity'
+            : 'Sessie verlopen door inactiviteit',
+        ),
+      );
     }
 
     if (token) {

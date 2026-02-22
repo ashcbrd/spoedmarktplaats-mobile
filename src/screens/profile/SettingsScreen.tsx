@@ -6,9 +6,11 @@ import {colors} from '../../theme/colors';
 import {typography} from '../../theme/typography';
 import {spacing} from '../../theme/spacing';
 import {useAuthStore} from '../../store/authStore';
+import {useI18n} from '../../i18n/I18nProvider';
 
 export const SettingsScreen: React.FC = () => {
   const user = useAuthStore(s => s.user);
+  const {language} = useI18n();
 
   const placeholder = (title: string) => () => Alert.alert(title, 'Binnenkort beschikbaar');
 
@@ -33,7 +35,7 @@ export const SettingsScreen: React.FC = () => {
       <View style={styles.section}>
         <View style={styles.row}>
           <Text style={styles.label}>Taal</Text>
-          <Text style={styles.value}>Nederlands</Text>
+          <Text style={styles.value}>{language === 'nl' ? 'Nederlands' : 'English'}</Text>
         </View>
       </View>
 

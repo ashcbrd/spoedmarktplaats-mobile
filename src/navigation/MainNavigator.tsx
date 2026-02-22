@@ -6,6 +6,7 @@ import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { useAuthStore } from '../store/authStore';
 import { useNotificationsStore } from '../store/notificationsStore';
+import { useI18n } from '../i18n/I18nProvider';
 import type {
   MainTabParamList,
   FeedStackParamList,
@@ -47,33 +48,39 @@ const stackScreenOptions = {
 
 // ── Feed Stack ──────────────────────────────
 const FeedStack = createNativeStackNavigator<FeedStackParamList>();
-const FeedNavigator = () => (
-  <FeedStack.Navigator
-    initialRouteName="JobFeed"
-    screenOptions={stackScreenOptions}
-  >
-    <FeedStack.Screen
-      name="JobFeed"
-      component={JobFeedScreen}
-      options={{ title: 'Spoedmarktplaats' }}
-    />
-    <FeedStack.Screen
-      name="JobDetail"
-      component={JobDetailScreen}
-      options={{ title: 'Opdracht' }}
-    />
-    <FeedStack.Screen
-      name="PlaceBid"
-      component={PlaceBidScreen}
-      options={{ title: 'Bod plaatsen', presentation: 'modal' }}
-    />
-  </FeedStack.Navigator>
-);
+const FeedNavigator = () => {
+  const { t } = useI18n();
+
+  return (
+    <FeedStack.Navigator
+      initialRouteName="JobFeed"
+      screenOptions={stackScreenOptions}
+    >
+      <FeedStack.Screen
+        name="JobFeed"
+        component={JobFeedScreen}
+        options={{ title: t('Spoedmarktplaats') }}
+      />
+      <FeedStack.Screen
+        name="JobDetail"
+        component={JobDetailScreen}
+        options={{ title: t('Opdracht') }}
+      />
+      <FeedStack.Screen
+        name="PlaceBid"
+        component={PlaceBidScreen}
+        options={{ title: t('Bod plaatsen'), presentation: 'modal' }}
+      />
+    </FeedStack.Navigator>
+  );
+};
 
 // ── Jobs / Bids Stack ───────────────────────
 const JobsStack = createNativeStackNavigator<JobsStackParamList>();
 const JobsNavigator = () => {
   const role = useAuthStore(s => s.user?.role);
+  const { t } = useI18n();
+
   return (
     <JobsStack.Navigator
       initialRouteName={role === 'provider' ? 'MyBids' : 'MyJobs'}
@@ -83,24 +90,24 @@ const JobsNavigator = () => {
         <JobsStack.Screen
           name="MyBids"
           component={MyBidsScreen}
-          options={{ title: 'Mijn biedingen' }}
+          options={{ title: t('Mijn biedingen') }}
         />
       ) : (
         <>
           <JobsStack.Screen
             name="MyJobs"
             component={MyJobsScreen}
-            options={{ title: 'Mijn opdrachten' }}
+            options={{ title: t('Mijn opdrachten') }}
           />
           <JobsStack.Screen
             name="CreateJob"
             component={CreateJobScreen}
-            options={{ title: 'Opdracht plaatsen', presentation: 'modal' }}
+            options={{ title: t('Opdracht plaatsen'), presentation: 'modal' }}
           />
           <JobsStack.Screen
             name="JobManagement"
             component={JobManagementScreen}
-            options={{ title: 'Beheren' }}
+            options={{ title: t('Beheren') }}
           />
         </>
       )}
@@ -110,88 +117,96 @@ const JobsNavigator = () => {
 
 // ── Deals Stack ─────────────────────────────
 const DealsStack = createNativeStackNavigator<DealsStackParamList>();
-const DealsNavigator = () => (
-  <DealsStack.Navigator
-    initialRouteName="ActiveDeals"
-    screenOptions={stackScreenOptions}
-  >
-    <DealsStack.Screen
-      name="ActiveDeals"
-      component={ActiveDealsScreen}
-      options={{ title: 'Deals' }}
-    />
-    <DealsStack.Screen
-      name="DealDetail"
-      component={DealDetailScreen}
-      options={{ title: 'Deal' }}
-    />
-    <DealsStack.Screen
-      name="Chat"
-      component={ChatScreen}
-      options={{ title: 'Chat' }}
-    />
-    <DealsStack.Screen
-      name="CompletionUpload"
-      component={CompletionUploadScreen}
-      options={{ title: 'Werk afronden', presentation: 'modal' }}
-    />
-    <DealsStack.Screen
-      name="Review"
-      component={ReviewScreen}
-      options={{ title: 'Review schrijven', presentation: 'modal' }}
-    />
-  </DealsStack.Navigator>
-);
+const DealsNavigator = () => {
+  const { t } = useI18n();
+
+  return (
+    <DealsStack.Navigator
+      initialRouteName="ActiveDeals"
+      screenOptions={stackScreenOptions}
+    >
+      <DealsStack.Screen
+        name="ActiveDeals"
+        component={ActiveDealsScreen}
+        options={{ title: t('Deals') }}
+      />
+      <DealsStack.Screen
+        name="DealDetail"
+        component={DealDetailScreen}
+        options={{ title: t('Deal') }}
+      />
+      <DealsStack.Screen
+        name="Chat"
+        component={ChatScreen}
+        options={{ title: t('Chat') }}
+      />
+      <DealsStack.Screen
+        name="CompletionUpload"
+        component={CompletionUploadScreen}
+        options={{ title: t('Werk afronden'), presentation: 'modal' }}
+      />
+      <DealsStack.Screen
+        name="Review"
+        component={ReviewScreen}
+        options={{ title: t('Review schrijven'), presentation: 'modal' }}
+      />
+    </DealsStack.Navigator>
+  );
+};
 
 // ── Profile Stack ───────────────────────────
 const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
-const ProfileNavigator = () => (
-  <ProfileStack.Navigator
-    initialRouteName="Profile"
-    screenOptions={stackScreenOptions}
-  >
-    <ProfileStack.Screen
-      name="Profile"
-      component={ProfileScreen}
-      options={{ title: 'Profiel' }}
-    />
-    <ProfileStack.Screen
-      name="Settings"
-      component={SettingsScreen}
-      options={{ title: 'Instellingen' }}
-    />
-    <ProfileStack.Screen
-      name="VerificationCenter"
-      component={VerificationCenterScreen}
-      options={{ title: 'Verificatie' }}
-    />
-    <ProfileStack.Screen
-      name="Credits"
-      component={CreditsScreen}
-      options={{ title: 'Credits' }}
-    />
-    <ProfileStack.Screen
-      name="Plans"
-      component={PlansScreen}
-      options={{ title: 'Abonnementen' }}
-    />
-    <ProfileStack.Screen
-      name="Preferences"
-      component={PreferencesScreen}
-      options={{ title: 'Voorkeuren' }}
-    />
-    <ProfileStack.Screen
-      name="PrivatePool"
-      component={PrivatePoolScreen}
-      options={{ title: 'Privaat Pool' }}
-    />
-    <ProfileStack.Screen
-      name="Notifications"
-      component={NotificationsScreen}
-      options={{ title: 'Meldingen' }}
-    />
-  </ProfileStack.Navigator>
-);
+const ProfileNavigator = () => {
+  const { t } = useI18n();
+
+  return (
+    <ProfileStack.Navigator
+      initialRouteName="Profile"
+      screenOptions={stackScreenOptions}
+    >
+      <ProfileStack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{ title: t('Profiel') }}
+      />
+      <ProfileStack.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{ title: t('Instellingen') }}
+      />
+      <ProfileStack.Screen
+        name="VerificationCenter"
+        component={VerificationCenterScreen}
+        options={{ title: t('Verificatie') }}
+      />
+      <ProfileStack.Screen
+        name="Credits"
+        component={CreditsScreen}
+        options={{ title: t('Credits') }}
+      />
+      <ProfileStack.Screen
+        name="Plans"
+        component={PlansScreen}
+        options={{ title: t('Abonnementen') }}
+      />
+      <ProfileStack.Screen
+        name="Preferences"
+        component={PreferencesScreen}
+        options={{ title: t('Voorkeuren') }}
+      />
+      <ProfileStack.Screen
+        name="PrivatePool"
+        component={PrivatePoolScreen}
+        options={{ title: t('Privaat Pool') }}
+      />
+      <ProfileStack.Screen
+        name="Notifications"
+        component={NotificationsScreen}
+        options={{ title: t('Meldingen') }}
+      />
+    </ProfileStack.Navigator>
+  );
+};
 
 // ── Main Tab Navigator ──────────────────────
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -221,6 +236,7 @@ const ClientJobsTabIcon = ({ color, size }: TabIconProps) => (
 export const MainNavigator: React.FC = () => {
   const role = useAuthStore(s => s.user?.role);
   const unreadCount = useNotificationsStore(s => s.unreadCount);
+  const { t } = useI18n();
 
   return (
     <Tab.Navigator
@@ -239,7 +255,7 @@ export const MainNavigator: React.FC = () => {
         name="FeedTab"
         component={FeedNavigator}
         options={{
-          tabBarLabel: 'Zoeken',
+          tabBarLabel: t('Zoeken'),
           tabBarIcon: SearchTabIcon,
         }}
       />
@@ -247,7 +263,8 @@ export const MainNavigator: React.FC = () => {
         name="JobsTab"
         component={JobsNavigator}
         options={{
-          tabBarLabel: role === 'provider' ? 'Biedingen' : 'Opdrachten',
+          tabBarLabel:
+            role === 'provider' ? t('Biedingen') : t('Opdrachten'),
           tabBarIcon:
             role === 'provider' ? ProviderJobsTabIcon : ClientJobsTabIcon,
         }}
@@ -256,7 +273,7 @@ export const MainNavigator: React.FC = () => {
         name="DealsTab"
         component={DealsNavigator}
         options={{
-          tabBarLabel: 'Deals',
+          tabBarLabel: t('Deals'),
           tabBarIcon: DealsTabIcon,
         }}
       />
@@ -264,7 +281,7 @@ export const MainNavigator: React.FC = () => {
         name="ProfileTab"
         component={ProfileNavigator}
         options={{
-          tabBarLabel: 'Profiel',
+          tabBarLabel: t('Profiel'),
           tabBarIcon: ProfileTabIcon,
           tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
         }}

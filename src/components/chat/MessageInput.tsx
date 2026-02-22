@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {View, TextInput, TouchableOpacity, StyleSheet} from 'react-native';
 import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
+import {useI18n} from '../../i18n/I18nProvider';
 import {colors} from '../../theme/colors';
 import {typography} from '../../theme/typography';
 import {spacing, borderRadius} from '../../theme/spacing';
@@ -11,6 +12,7 @@ interface Props {
 
 export const MessageInput: React.FC<Props> = ({onSend}) => {
   const [text, setText] = useState('');
+  const {t} = useI18n();
 
   const handleSend = () => {
     const trimmed = text.trim();
@@ -23,7 +25,7 @@ export const MessageInput: React.FC<Props> = ({onSend}) => {
     <View style={styles.container}>
       <TextInput
         style={styles.input}
-        placeholder="Typ een bericht..."
+        placeholder={t('Typ een bericht...')}
         placeholderTextColor={colors.textTertiary}
         value={text}
         onChangeText={setText}

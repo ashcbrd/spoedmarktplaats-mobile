@@ -7,11 +7,14 @@ import {colors} from '../../theme/colors';
 import {typography} from '../../theme/typography';
 import {spacing, borderRadius} from '../../theme/spacing';
 import {Button} from '../../components/common/Button';
+import {useI18n} from '../../i18n/I18nProvider';
 import type {AuthStackParamList} from '../../types/navigation';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Welcome'>;
 
 export const WelcomeScreen: React.FC<Props> = ({navigation}) => {
+  const {t} = useI18n();
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.secondary} />
@@ -21,16 +24,16 @@ export const WelcomeScreen: React.FC<Props> = ({navigation}) => {
         <View style={styles.logoContainer}>
           <Icon name="hammer-wrench" size={56} color={colors.primary} />
         </View>
-        <Text style={styles.title}>Spoedmarktplaats</Text>
-        <Text style={styles.subtitle}>Urgente klussen, snel geregeld</Text>
+        <Text style={styles.title}>{t('Spoedmarktplaats')}</Text>
+        <Text style={styles.subtitle}>{t('Urgente klussen, snel geregeld')}</Text>
       </View>
 
       {/* CTA area */}
       <View style={styles.ctaSection}>
-        <Text style={styles.ctaHeading}>Wat beschrijft jou het beste?</Text>
+        <Text style={styles.ctaHeading}>{t('Wat beschrijft jou het beste?')}</Text>
 
         <Button
-          title="Ik zoek een vakman"
+          title={t('Ik zoek een vakman')}
           onPress={() => navigation.navigate('Signup', {role: 'client'})}
           variant="primary"
           size="lg"
@@ -39,7 +42,7 @@ export const WelcomeScreen: React.FC<Props> = ({navigation}) => {
         />
 
         <Button
-          title="Ik ben vakman"
+          title={t('Ik ben vakman')}
           onPress={() => navigation.navigate('Signup', {role: 'provider'})}
           variant="outline"
           size="lg"
@@ -51,11 +54,11 @@ export const WelcomeScreen: React.FC<Props> = ({navigation}) => {
       {/* Bottom link */}
       <View style={styles.bottomSection}>
         <Text style={styles.loginText}>
-          Heb je al een account?{' '}
+          {t('Heb je al een account?')}{' '}
           <Text
             style={styles.loginLink}
             onPress={() => navigation.navigate('Login')}>
-            Inloggen
+            {t('Inloggen')}
           </Text>
         </Text>
       </View>

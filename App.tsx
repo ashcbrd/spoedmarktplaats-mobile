@@ -7,6 +7,8 @@ import { GestureHandlerRootView as GHRootView } from 'react-native-gesture-handl
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { RootNavigator } from './src/navigation/RootNavigator';
+import { FloatingLanguageToggle } from './src/components/i18n/FloatingLanguageToggle';
+import { I18nProvider } from './src/i18n/I18nProvider';
 import { useAuthStore } from './src/store/authStore';
 import { theme } from './src/theme/theme';
 
@@ -60,35 +62,38 @@ function App() {
 
   return (
     <GestureHandlerRootView style={styles.root}>
-      <QueryClientProvider client={queryClient}>
-        <SafeAreaProvider>
-          <NavigationContainer
-            theme={{
-              dark: isDarkMode,
-              colors: {
-                primary: theme.colors.primary,
-                background: theme.colors.background,
-                card: theme.colors.surface,
-                text: theme.colors.textPrimary,
-                border: theme.colors.border,
-                notification: theme.colors.error,
-              },
-              fonts: {
-                regular: { fontFamily: 'System', fontWeight: '400' },
-                medium: { fontFamily: 'System', fontWeight: '500' },
-                bold: { fontFamily: 'System', fontWeight: '700' },
-                heavy: { fontFamily: 'System', fontWeight: '800' },
-              },
-            }}
-          >
-            <StatusBar
-              barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-              backgroundColor={theme.colors.background}
-            />
-            <RootNavigator />
-          </NavigationContainer>
-        </SafeAreaProvider>
-      </QueryClientProvider>
+      <I18nProvider>
+        <QueryClientProvider client={queryClient}>
+          <SafeAreaProvider>
+            <NavigationContainer
+              theme={{
+                dark: isDarkMode,
+                colors: {
+                  primary: theme.colors.primary,
+                  background: theme.colors.background,
+                  card: theme.colors.surface,
+                  text: theme.colors.textPrimary,
+                  border: theme.colors.border,
+                  notification: theme.colors.error,
+                },
+                fonts: {
+                  regular: { fontFamily: 'System', fontWeight: '400' },
+                  medium: { fontFamily: 'System', fontWeight: '500' },
+                  bold: { fontFamily: 'System', fontWeight: '700' },
+                  heavy: { fontFamily: 'System', fontWeight: '800' },
+                },
+              }}
+            >
+              <StatusBar
+                barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+                backgroundColor={theme.colors.background}
+              />
+              <RootNavigator />
+              <FloatingLanguageToggle />
+            </NavigationContainer>
+          </SafeAreaProvider>
+        </QueryClientProvider>
+      </I18nProvider>
     </GestureHandlerRootView>
   );
 }

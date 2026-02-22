@@ -28,6 +28,12 @@ import { formatBudget } from '../../utils/formatters';
 import type { Asset } from '../../services/media.service';
 
 const TOTAL_STEPS = 8;
+const DESCRIPTION_MIN_CHARS = 20;
+const DESCRIPTION_MAX_CHARS = 1000;
+
+const sanitizeNumberInput = (value: string): string => {
+  return value.replace(/[^\d]/g, '');
+};
 
 export const CreateJobScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -67,7 +73,11 @@ export const CreateJobScreen: React.FC = () => {
       case 2:
         return postcode.length >= 4 && city.length >= 2;
       case 3:
-        return title.length >= 5 && description.length >= 20;
+        return (
+          title.length >= 5 &&
+          description.length >= DESCRIPTION_MIN_CHARS &&
+          description.length <= DESCRIPTION_MAX_CHARS
+        );
       case 4:
         return true; // photos optional
       case 5:
@@ -245,6 +255,8 @@ export const CreateJobScreen: React.FC = () => {
               placeholder="Bijv. Lekkage verhelpen in badkamer"
               value={title}
               onChangeText={setTitle}
+              minChars={5}
+              maxChars={120}
               maxLength={120}
             />
             <Input
@@ -252,8 +264,11 @@ export const CreateJobScreen: React.FC = () => {
               placeholder="Beschrijf het werk zo duidelijk mogelijk..."
               value={description}
               onChangeText={setDescription}
+              minChars={DESCRIPTION_MIN_CHARS}
+              maxChars={DESCRIPTION_MAX_CHARS}
               multiline
               numberOfLines={5}
+              maxLength={DESCRIPTION_MAX_CHARS}
               style={styles.descriptionInput}
             />
           </>
@@ -304,7 +319,9 @@ export const CreateJobScreen: React.FC = () => {
                 label="Bedrag (€)"
                 placeholder="250"
                 value={budgetAmount}
-                onChangeText={setBudgetAmount}
+                onChangeText={value =>
+                  setBudgetAmount(sanitizeNumberInput(value))
+                }
                 keyboardType="numeric"
               />
             )}
@@ -313,7 +330,9 @@ export const CreateJobScreen: React.FC = () => {
                 label="Uurtarief (€)"
                 placeholder="45"
                 value={budgetAmount}
-                onChangeText={setBudgetAmount}
+                onChangeText={value =>
+                  setBudgetAmount(sanitizeNumberInput(value))
+                }
                 keyboardType="numeric"
               />
             )}
@@ -323,14 +342,18 @@ export const CreateJobScreen: React.FC = () => {
                   label="Minimum (€)"
                   placeholder="100"
                   value={budgetMin}
-                  onChangeText={setBudgetMin}
+                  onChangeText={value =>
+                    setBudgetMin(sanitizeNumberInput(value))
+                  }
                   keyboardType="numeric"
                 />
                 <Input
                   label="Maximum (€)"
                   placeholder="500"
                   value={budgetMax}
-                  onChangeText={setBudgetMax}
+                  onChangeText={value =>
+                    setBudgetMax(sanitizeNumberInput(value))
+                  }
                   keyboardType="numeric"
                 />
               </>

@@ -1,6 +1,7 @@
 import * as ImagePicker from 'expo-image-picker';
 import {mediaApi} from '../api/endpoints/media';
 import type {UploadMimeType} from '../api/endpoints/media';
+import {getRuntimeLanguage} from '../i18n/runtimeLanguage';
 import type {Attachment} from '../types/models';
 
 // Type to match old react-native-image-picker Asset interface
@@ -14,6 +15,10 @@ export interface Asset {
 }
 
 const MAX_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024;
+
+const i18nMessage = (nl: string, en: string): string => {
+  return getRuntimeLanguage() === 'en' ? en : nl;
+};
 
 const normalizeMimeType = (asset: Asset): UploadMimeType => {
   const input = (asset.type ?? '').toLowerCase();
@@ -55,7 +60,12 @@ export const pickPhotos = async (selectionLimit = 5): Promise<Asset[]> => {
   // Request permission
   const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
   if (status !== 'granted') {
-    throw new Error('Photo library permission is required');
+    throw new Error(
+      i18nMessage(
+        'Toegang tot je fotobibliotheek is vereist',
+        'Photo library permission is required',
+      ),
+    );
   }
 
   const result = await ImagePicker.launchImageLibraryAsync({
@@ -76,7 +86,9 @@ export const capturePhoto = async (): Promise<Asset | null> => {
   // Request permission
   const {status} = await ImagePicker.requestCameraPermissionsAsync();
   if (status !== 'granted') {
-    throw new Error('Camera permission is required');
+    throw new Error(
+      i18nMessage('Camera toegang is vereist', 'Camera permission is required'),
+    );
   }
 
   const result = await ImagePicker.launchCameraAsync({
@@ -96,7 +108,12 @@ export const pickDocument = async (): Promise<Asset[]> => {
   // Request permission
   const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
   if (status !== 'granted') {
-    throw new Error('Media library permission is required');
+    throw new Error(
+      i18nMessage(
+        'Toegang tot je mediabibliotheek is vereist',
+        'Media library permission is required',
+      ),
+    );
   }
 
   // expo-image-picker doesn't support documents, only images/videos
@@ -123,7 +140,12 @@ export const uploadAsset = async (
   const fileSize = await resolveAssetSize(asset);
 
   if (fileSize <= 0 || fileSize > MAX_UPLOAD_SIZE_BYTES) {
-    throw new Error('Bestand moet tussen 1 byte en 10 MB zijn.');
+    throw new Error(
+      i18nMessage(
+        'Bestand moet tussen 1 byte en 10 MB zijn.',
+        'File must be between 1 byte and 10 MB.',
+      ),
+    );
   }
 
   const {uploadUrl, publicUrl, uploadMethod, uploadFields} =
@@ -137,7 +159,9 @@ export const uploadAsset = async (
 
   if (uploadMethod === 'POST') {
     if (!uploadFields) {
-      throw new Error('Upload configuratie ontbreekt');
+      throw new Error(
+        i18nMessage('Upload configuratie ontbreekt', 'Upload configuration is missing'),
+      );
     }
 
     const formData = new FormData();
@@ -157,7 +181,12 @@ export const uploadAsset = async (
     });
 
     if (!response.ok) {
-      throw new Error(`Upload mislukt (${response.status})`);
+      throw new Error(
+        i18nMessage(
+          `Upload mislukt (${response.status})`,
+          `Upload failed (${response.status})`,
+        ),
+      );
     }
   } else {
     const response = await fetch(uploadUrl, {
@@ -171,7 +200,12 @@ export const uploadAsset = async (
     });
 
     if (!response.ok) {
-      throw new Error(`Upload mislukt (${response.status})`);
+      throw new Error(
+        i18nMessage(
+          `Upload mislukt (${response.status})`,
+          `Upload failed (${response.status})`,
+        ),
+      );
     }
   }
 

@@ -2,9 +2,11 @@ import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query';
 import {usersApi} from '../api/endpoints/users';
 import {showErrorAlert} from '../utils/errorHandling';
 import type {ProviderVerification} from '../types/models';
+import {useI18n} from '../i18n/I18nProvider';
 
 export const useVerification = () => {
   const qc = useQueryClient();
+  const {t} = useI18n();
 
   const statusQuery = useQuery({
     queryKey: ['verification'],
@@ -37,17 +39,17 @@ export const useVerification = () => {
 
   const canBid = (verification?: ProviderVerification | null): {allowed: boolean; reason?: string} => {
     if (!verification) {
-      return {allowed: false, reason: 'Verificatiestatus onbekend'};
+      return {allowed: false, reason: t('Verificatiestatus onbekend')};
     }
     if (verification.idVerified !== 'verified') {
-      return {allowed: false, reason: 'ID-verificatie vereist'};
+      return {allowed: false, reason: t('ID-verificatie vereist')};
     }
     if (verification.isZzp) {
       if (verification.kvkVerified !== 'verified') {
-        return {allowed: false, reason: 'KvK-verificatie vereist'};
+        return {allowed: false, reason: t('KvK-verificatie vereist')};
       }
       if (verification.ibanVerified !== 'verified') {
-        return {allowed: false, reason: 'IBAN-verificatie vereist'};
+        return {allowed: false, reason: t('IBAN-verificatie vereist')};
       }
     }
     return {allowed: true};

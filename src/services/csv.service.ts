@@ -1,4 +1,5 @@
 import Papa from 'papaparse';
+import {getRuntimeLanguage} from '../i18n/runtimeLanguage';
 
 export interface CsvPoolRow {
   first_name: string;
@@ -18,6 +19,8 @@ export const CSV_TEMPLATE_EXAMPLE =
   '\nJan,de Vries,jan@example.com,0612345678,plumber,1012AB,Betrouwbaar';
 
 export const parseCsv = (csvString: string): {data: CsvPoolRow[]; errors: string[]} => {
+  const isEnglish = getRuntimeLanguage() === 'en';
+
   const result = Papa.parse<CsvPoolRow>(csvString, {
     header: true,
     skipEmptyLines: true,
@@ -29,9 +32,17 @@ export const parseCsv = (csvString: string): {data: CsvPoolRow[]; errors: string
 
   result.data.forEach((row, idx) => {
     if (!row.first_name || !row.last_name || !row.email) {
-      errors.push(`Rij ${idx + 2}: Voornaam, achternaam en e-mail zijn verplicht`);
+      errors.push(
+        isEnglish
+          ? `Row ${idx + 2}: First name, last name, and email are required`
+          : `Rij ${idx + 2}: Voornaam, achternaam en e-mail zijn verplicht`,
+      );
     } else if (!/^[^@]+@[^@]+\.[^@]+$/.test(row.email)) {
-      errors.push(`Rij ${idx + 2}: Ongeldig e-mailadres "${row.email}"`);
+      errors.push(
+        isEnglish
+          ? `Row ${idx + 2}: Invalid email address "${row.email}"`
+          : `Rij ${idx + 2}: Ongeldig e-mailadres "${row.email}"`,
+      );
     } else {
       validRows.push(row);
     }

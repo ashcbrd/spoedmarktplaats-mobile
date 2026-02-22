@@ -15,6 +15,7 @@ import {typography} from '../../theme/typography';
 import {spacing, borderRadius} from '../../theme/spacing';
 import {Button} from '../../components/common/Button';
 import {useAuth} from '../../hooks/useAuth';
+import {useI18n} from '../../i18n/I18nProvider';
 import type {AuthStackParamList} from '../../types/navigation';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'PhoneVerification'>;
@@ -24,12 +25,14 @@ const RESEND_COOLDOWN = 30;
 
 export const PhoneVerificationScreen: React.FC<Props> = ({navigation}) => {
   const {user, sendOtp, verifyPhone} = useAuth();
+  const {language} = useI18n();
 
   const [code, setCode] = useState<string[]>(Array(CODE_LENGTH).fill(''));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [countdown, setCountdown] = useState(RESEND_COOLDOWN);
   const inputRefs = useRef<(TextInput | null)[]>([]);
+  const codeLength = code.join('').length;
 
   // Start countdown on mount and send initial OTP
   useEffect(() => {
@@ -166,6 +169,23 @@ export const PhoneVerificationScreen: React.FC<Props> = ({navigation}) => {
             ))}
           </View>
 
+          <Text style={styles.counterHelper}>
+            {language === 'en'
+              ? `Exactly ${CODE_LENGTH} digits`
+              : `Precies ${CODE_LENGTH} cijfers`}
+          </Text>
+          <Text
+            style={[
+              styles.counterText,
+              codeLength > 0 && codeLength < CODE_LENGTH
+                ? styles.counterTextWarning
+                : undefined,
+            ]}>
+            {language === 'en'
+              ? `${codeLength}/${CODE_LENGTH} digits`
+              : `${codeLength}/${CODE_LENGTH} cijfers`}
+          </Text>
+
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
           <Button
@@ -249,6 +269,19 @@ const styles = StyleSheet.create({
   },
   otpBoxError: {
     borderColor: colors.error,
+  },
+  counterHelper: {
+    ...typography.small,
+    color: colors.textSecondary,
+    marginBottom: spacing.xxs,
+  },
+  counterText: {
+    ...typography.small,
+    color: colors.textTertiary,
+    marginBottom: spacing.md,
+  },
+  counterTextWarning: {
+    color: colors.warning,
   },
   errorText: {
     ...typography.caption,

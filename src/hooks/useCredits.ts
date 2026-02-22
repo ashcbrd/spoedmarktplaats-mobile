@@ -4,10 +4,13 @@ import {creditsApi} from '../api/endpoints/credits';
 import {useCallback} from 'react';
 import {Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import {useI18n} from '../i18n/I18nProvider';
+import {translateText} from '../i18n/translateText';
 
 export const useCredits = () => {
   const {balance, setBalance, deduct} = useCreditsStore();
   const navigation = useNavigation<any>();
+  const {language, t} = useI18n();
 
   // Sync balance from server
   useQuery({
@@ -23,13 +26,19 @@ export const useCredits = () => {
   const checkAndConsume = useCallback(
     async (cost: number, actionLabel: string): Promise<boolean> => {
       if (balance < cost) {
+        const action = translateText(actionLabel, language);
+        const message =
+          language === 'en'
+            ? `You need ${cost} credit(s) to ${action}. Current balance: ${balance}.`
+            : `Je hebt ${cost} credit(s) nodig om ${action}. Huidige balans: ${balance}.`;
+
         Alert.alert(
-          'Onvoldoende credits',
-          `Je hebt ${cost} credit(s) nodig om ${actionLabel}. Huidige balans: ${balance}.`,
+          t('Onvoldoende credits'),
+          message,
           [
-            {text: 'Annuleren', style: 'cancel'},
+            {text: t('Annuleren'), style: 'cancel'},
             {
-              text: 'Bekijk abonnementen',
+              text: t('Bekijk abonnementen'),
               onPress: () => navigation.navigate('ProfileTab', {screen: 'Plans'}),
             },
           ],
