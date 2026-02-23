@@ -90,7 +90,7 @@ export const Input: React.FC<Props> = ({
 
   return (
     <View style={styles.container}>
-      {label && <Text style={styles.label}>{label}</Text>}
+      {label && <Text style={styles.label}>{t(label)}</Text>}
       <View style={[styles.inputContainer, error ? styles.inputError : undefined]}>
         {leftIcon && (
           <Icon name={leftIcon} size={20} color={colors.textTertiary} style={styles.icon} />
@@ -125,7 +125,7 @@ export const Input: React.FC<Props> = ({
           {counterText}
         </Text>
       ) : null}
-      {error && <Text style={styles.error}>{error}</Text>}
+      {error && <Text style={styles.error}>{t(error)}</Text>}
     </View>
   );
 };

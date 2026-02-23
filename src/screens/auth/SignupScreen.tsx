@@ -25,6 +25,15 @@ import type {ClientType} from '../../types/models';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Signup'>;
 
+const sanitizePhoneInput = (value: string): string => {
+  return value.replace(/\D/g, '').slice(0, 10);
+};
+
+const normalizeDutchMobileToE164 = (phone: string): string => {
+  if (!phone.startsWith('0')) return phone;
+  return `+31${phone.slice(1)}`;
+};
+
 export const SignupScreen: React.FC<Props> = ({navigation, route}) => {
   const role = route.params?.role;
   const {signup, signupPending} = useAuth();
@@ -58,7 +67,7 @@ export const SignupScreen: React.FC<Props> = ({navigation, route}) => {
       await signup({
         name: data.name,
         email: data.email,
-        phone: data.phone,
+        phone: normalizeDutchMobileToE164(data.phone),
         password: data.password,
         role: role ?? 'client',
         ...(role === 'client' ? {clientType} : {}),
@@ -169,13 +178,16 @@ export const SignupScreen: React.FC<Props> = ({navigation, route}) => {
             render={({field: {onChange, onBlur, value}}) => (
               <Input
                 label="Telefoonnummer"
-                placeholder="06 12345678"
+                placeholder="0612345678"
                 leftIcon="phone-outline"
                 keyboardType="phone-pad"
                 autoComplete="tel"
                 value={value}
-                onChangeText={onChange}
+                onChangeText={text => onChange(sanitizePhoneInput(text))}
                 onBlur={onBlur}
+                minChars={10}
+                maxChars={10}
+                maxLength={10}
                 error={errors.phone?.message}
               />
             )}
@@ -190,7 +202,10 @@ export const SignupScreen: React.FC<Props> = ({navigation, route}) => {
                 placeholder="Minimaal 8 tekens"
                 leftIcon="lock-outline"
                 isPassword
-                autoComplete="password-new"
+                autoComplete="off"
+                textContentType="none"
+                autoCorrect={false}
+                spellCheck={false}
                 value={value}
                 onChangeText={onChange}
                 onBlur={onBlur}
@@ -208,7 +223,10 @@ export const SignupScreen: React.FC<Props> = ({navigation, route}) => {
                 placeholder="Herhaal wachtwoord"
                 leftIcon="lock-check-outline"
                 isPassword
-                autoComplete="password-new"
+                autoComplete="off"
+                textContentType="none"
+                autoCorrect={false}
+                spellCheck={false}
                 value={value}
                 onChangeText={onChange}
                 onBlur={onBlur}

@@ -1,18 +1,18 @@
 export const colors = {
   // brand
-  primary: '#FF6B00', // construction orange
-  primaryLight: '#FF8C33',
-  primaryDark: '#CC5500',
+  primary: '#C25A18',
+  primaryLight: '#D07035',
+  primaryDark: '#9B4612',
 
   // secondary
-  secondary: '#1A1A2E',
-  secondaryLight: '#2D2D44',
+  secondary: '#111827',
+  secondaryLight: '#273449',
 
   // status
-  success: '#22C55E',
-  warning: '#F59E0B',
-  error: '#EF4444',
-  info: '#3B82F6',
+  success: '#1F9D63',
+  warning: '#B7791F',
+  error: '#C53030',
+  info: '#2563EB',
 
   // urgency
   urgencyASAP: '#EF4444',
@@ -23,27 +23,27 @@ export const colors = {
   // neutrals
   white: '#FFFFFF',
   black: '#000000',
-  background: '#F5F5F7',
+  background: '#F4F5F7',
   surface: '#FFFFFF',
-  surfaceSecondary: '#F0F0F3',
-  border: '#E5E5EA',
-  borderLight: '#F2F2F7',
+  surfaceSecondary: '#F8FAFC',
+  border: '#E2E8F0',
+  borderLight: '#EEF2F7',
 
   // text
-  textPrimary: '#1A1A2E',
-  textSecondary: '#6B7280',
-  textTertiary: '#9CA3AF',
+  textPrimary: '#0F172A',
+  textSecondary: '#475569',
+  textTertiary: '#94A3B8',
   textInverse: '#FFFFFF',
   textLink: '#FF6B00',
 
   // badges
-  verified: '#22C55E',
-  boosted: '#F59E0B',
-  privatePool: '#8B5CF6',
+  verified: '#1F9D63',
+  boosted: '#B7791F',
+  privatePool: '#5B5BD6',
 
   // overlay
-  overlay: 'rgba(0,0,0,0.5)',
-  overlayLight: 'rgba(0,0,0,0.1)',
+  overlay: 'rgba(15,23,42,0.42)',
+  overlayLight: 'rgba(15,23,42,0.08)',
 } as const;
 
 export type ColorKey = keyof typeof colors;

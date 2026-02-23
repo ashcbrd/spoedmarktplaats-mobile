@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
+import { borderRadius, spacing } from '../theme/spacing';
 import { useAuthStore } from '../store/authStore';
 import { useNotificationsStore } from '../store/notificationsStore';
 import { useI18n } from '../i18n/I18nProvider';
@@ -43,7 +44,13 @@ const stackScreenOptions = {
   headerTitleStyle: { ...typography.h4, color: colors.textPrimary },
   headerShadowVisible: false,
   headerBackTitleVisible: false,
+  headerStyle: {
+    backgroundColor: colors.surface,
+  },
+  headerTitleAlign: 'center' as const,
   contentStyle: { backgroundColor: colors.background },
+  animation: 'slide_from_right' as const,
+  gestureEnabled: true,
 };
 
 // ── Feed Stack ──────────────────────────────
@@ -247,7 +254,16 @@ export const MainNavigator: React.FC = () => {
         tabBarLabelStyle: typography.tabLabel,
         tabBarStyle: {
           backgroundColor: colors.surface,
-          borderTopColor: colors.borderLight,
+          borderTopColor: colors.border,
+          borderTopWidth: 1,
+          height: 74,
+          paddingTop: spacing.xs,
+          paddingBottom: spacing.md,
+          paddingHorizontal: spacing.sm,
+        },
+        tabBarItemStyle: {
+          borderRadius: borderRadius.md,
+          marginHorizontal: spacing.xxs,
         },
       }}
     >

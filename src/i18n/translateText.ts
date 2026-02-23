@@ -255,6 +255,12 @@ const PHRASES: PhrasePair[] = [
   {nl: 'Ongeldig e-mailadres', en: 'Invalid email address'},
   {nl: 'Minimaal 2 tekens', en: 'At least 2 characters'},
   {nl: 'Ongeldig telefoonnummer', en: 'Invalid phone number'},
+  {nl: 'E-mailadres is al in gebruik', en: 'Email already in use'},
+  {nl: 'Telefoonnummer is al in gebruik', en: 'Phone number already in use'},
+  {
+    nl: 'Voer een geldig Nederlands mobiel nummer in (06XXXXXXXX)',
+    en: 'Enter a valid Dutch mobile number (06XXXXXXXX)',
+  },
   {nl: 'Wachtwoorden komen niet overeen', en: 'Passwords do not match'},
   {nl: 'Voer 6-cijferige code in', en: 'Enter a 6-digit code'},
   {nl: 'Kies een categorie', en: 'Choose a category'},

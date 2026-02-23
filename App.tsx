@@ -8,6 +8,7 @@ import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { FloatingLanguageToggle } from './src/components/i18n/FloatingLanguageToggle';
+import { NetworkBanner } from './src/components/common/NetworkBanner';
 import { I18nProvider } from './src/i18n/I18nProvider';
 import { useAuthStore } from './src/store/authStore';
 import { theme } from './src/theme/theme';
@@ -88,6 +89,7 @@ function App() {
                 barStyle={isDarkMode ? 'light-content' : 'dark-content'}
                 backgroundColor={theme.colors.background}
               />
+              <NetworkBanner />
               <RootNavigator />
               <FloatingLanguageToggle />
             </NavigationContainer>

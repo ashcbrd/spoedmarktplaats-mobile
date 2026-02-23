@@ -10,7 +10,9 @@ export const signupSchema = z
   .object({
     name: z.string().min(2, 'Minimaal 2 tekens'),
     email: z.string().email('Ongeldig e-mailadres'),
-    phone: z.string().min(10, 'Ongeldig telefoonnummer'),
+    phone: z
+      .string()
+      .regex(/^06\d{8}$/, 'Voer een geldig Nederlands mobiel nummer in (06XXXXXXXX)'),
     password: z.string().min(8, 'Minimaal 8 tekens'),
     confirmPassword: z.string(),
   })

@@ -11,7 +11,7 @@ interface Props {
 
 export const Loading: React.FC<Props> = ({message, fullScreen = true}) => (
   <View style={[styles.container, fullScreen && styles.fullScreen]}>
-    <ActivityIndicator size="large" color={colors.primary} />
+    <ActivityIndicator size="small" color={colors.primary} />
     {message && <Text style={styles.message}>{message}</Text>}
   </View>
 );
@@ -20,8 +20,9 @@ const styles = StyleSheet.create({
   container: {alignItems: 'center', justifyContent: 'center', padding: spacing.xxl},
   fullScreen: {flex: 1},
   message: {
-    ...typography.caption,
+    ...typography.captionBold,
     color: colors.textSecondary,
     marginTop: spacing.md,
+    textAlign: 'center',
   },
 });

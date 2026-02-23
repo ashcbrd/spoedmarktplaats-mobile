@@ -52,7 +52,7 @@ module.exports = {
       ],
     ],
     extra: {
-      apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:3000/api',
+      apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:3000/api/v1',
       wsUrl: process.env.WS_URL || 'ws://localhost:3000/chat',
       environment: process.env.ENVIRONMENT || 'development',
     },

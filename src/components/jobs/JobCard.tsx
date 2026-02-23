@@ -7,6 +7,7 @@ import {UrgencyTimer} from './UrgencyTimer';
 import {colors} from '../../theme/colors';
 import {typography} from '../../theme/typography';
 import {spacing} from '../../theme/spacing';
+import {theme} from '../../theme/theme';
 import {formatBidCount, formatBudget} from '../../utils/formatters';
 import {SUBCATEGORIES} from '../../config/constants';
 import type {Job} from '../../types/models';
@@ -91,7 +92,10 @@ export const JobCard: React.FC<Props> = ({job, onPress}) => {
 };
 
 const styles = StyleSheet.create({
-  card: {marginBottom: spacing.md},
+  card: {
+    marginBottom: spacing.md,
+    borderRadius: theme.components.cardRadius,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -99,7 +103,11 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   badges: {flexDirection: 'row', gap: spacing.xs},
-  title: {...typography.h4, color: colors.textPrimary, marginBottom: spacing.sm},
+  title: {
+    ...typography.h4,
+    color: colors.textPrimary,
+    marginBottom: spacing.sm,
+  },
   meta: {flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md, marginBottom: spacing.sm},
   metaItem: {flexDirection: 'row', alignItems: 'center', gap: spacing.xxs},
   metaText: {...typography.caption, color: colors.textSecondary},
@@ -107,7 +115,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: spacing.xs,
+    marginTop: spacing.sm,
+    paddingTop: spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: colors.borderLight,
   },
   budget: {...typography.bodyBold, color: colors.primary},
   reqRow: {

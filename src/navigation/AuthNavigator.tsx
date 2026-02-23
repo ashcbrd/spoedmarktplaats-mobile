@@ -10,6 +10,12 @@ import {ProviderOnboardingScreen} from '../screens/auth/ProviderOnboardingScreen
 import {colors} from '../theme/colors';
 import {useI18n} from '../i18n/I18nProvider';
 
+const headerTitleStyle = {
+  fontSize: 17,
+  fontWeight: '600' as const,
+  color: colors.textPrimary,
+};
+
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
 export const AuthNavigator: React.FC = () => {
@@ -22,6 +28,7 @@ export const AuthNavigator: React.FC = () => {
         headerShown: false,
         contentStyle: {backgroundColor: colors.background},
         animation: 'slide_from_right',
+        gestureEnabled: true,
       }}>
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
@@ -29,17 +36,35 @@ export const AuthNavigator: React.FC = () => {
       <Stack.Screen
         name="PhoneVerification"
         component={PhoneVerificationScreen}
-        options={{headerShown: true, title: t('Telefoon verificatie')}}
+        options={{
+          headerShown: true,
+          headerTitleStyle,
+          headerTitleAlign: 'center',
+          headerShadowVisible: false,
+          title: t('Telefoon verificatie'),
+        }}
       />
       <Stack.Screen
         name="ClientOnboarding"
         component={ClientOnboardingScreen}
-        options={{headerShown: true, title: t('Bedrijf instellen')}}
+        options={{
+          headerShown: true,
+          headerTitleStyle,
+          headerTitleAlign: 'center',
+          headerShadowVisible: false,
+          title: t('Bedrijf instellen'),
+        }}
       />
       <Stack.Screen
         name="ProviderOnboarding"
         component={ProviderOnboardingScreen}
-        options={{headerShown: true, title: t('Voorkeuren instellen')}}
+        options={{
+          headerShown: true,
+          headerTitleStyle,
+          headerTitleAlign: 'center',
+          headerShadowVisible: false,
+          title: t('Voorkeuren instellen'),
+        }}
       />
     </Stack.Navigator>
   );

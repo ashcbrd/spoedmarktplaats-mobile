@@ -15,8 +15,10 @@ import { JobCard } from '../../components/jobs/JobCard';
 import { JobFilters } from '../../components/jobs/JobFilters';
 import { Loading } from '../../components/common/Loading';
 import { EmptyState } from '../../components/common/EmptyState';
+import { FeedSkeleton } from '../../components/common/Skeleton';
 import { colors } from '../../theme/colors';
 import { spacing, borderRadius } from '../../theme/spacing';
+import { theme } from '../../theme/theme';
 import type { JobFilters as FilterType, Job } from '../../types/models';
 import type { FeedStackParamList } from '../../types/navigation';
 
@@ -74,7 +76,7 @@ export const JobFeedScreen: React.FC = () => {
   }, [isFetchingNextPage]);
 
   if (isLoading) {
-    return <Loading message="Klussen ophalen..." />;
+    return <FeedSkeleton />;
   }
 
   return (
@@ -136,16 +138,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: spacing.xl,
     bottom: spacing.xxl,
-    width: 56,
-    height: 56,
+    width: 58,
+    height: 58,
     borderRadius: borderRadius.full,
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 6,
+    borderWidth: 1,
+    borderColor: colors.white,
+    ...theme.elevation.md,
   },
 });

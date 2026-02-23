@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  TouchableOpacity,
+  Pressable,
   Text,
   StyleSheet,
   ActivityIndicator,
@@ -10,6 +10,9 @@ import {
 import {colors} from '../../theme/colors';
 import {typography} from '../../theme/typography';
 import {spacing, borderRadius} from '../../theme/spacing';
+import {theme} from '../../theme/theme';
+import {useI18n} from '../../i18n/I18nProvider';
+import {triggerSelectionHaptic} from '../../utils/haptics';
 
 type Variant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 type Size = 'sm' | 'md' | 'lg';
@@ -36,19 +39,27 @@ export const Button: React.FC<Props> = ({
   style,
 }) => {
   const isDisabled = disabled || loading;
+  const {t} = useI18n();
+
+  const handlePress = () => {
+    if (isDisabled) return;
+    triggerSelectionHaptic();
+    onPress();
+  };
 
   return (
-    <TouchableOpacity
-      style={[
+    <Pressable
+      accessibilityRole="button"
+      style={({pressed}) => [
         styles.base,
         sizeStyles[size],
         variantStyles[variant],
+        pressed && !isDisabled && styles.pressed,
         isDisabled && styles.disabled,
         style,
       ]}
-      onPress={onPress}
-      disabled={isDisabled}
-      activeOpacity={0.7}>
+      onPress={handlePress}
+      disabled={isDisabled}>
       {loading ? (
         <ActivityIndicator
           color={variant === 'outline' || variant === 'ghost' ? colors.primary : colors.white}
@@ -64,11 +75,11 @@ export const Button: React.FC<Props> = ({
               variantTextStyles[variant],
               icon ? {marginLeft: spacing.sm} : undefined,
             ]}>
-            {title}
+            {t(title)}
           </Text>
         </>
       )}
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
@@ -78,15 +89,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: borderRadius.md,
+    minHeight: 44,
+    ...theme.elevation.sm,
   },
-  disabled: {opacity: 0.5},
+  pressed: {transform: [{scale: 0.99}]},
+  disabled: {opacity: 0.45},
   text: {...typography.button},
 });
 
 const sizeStyles: Record<Size, ViewStyle> = {
-  sm: {paddingVertical: spacing.sm, paddingHorizontal: spacing.md},
-  md: {paddingVertical: spacing.md, paddingHorizontal: spacing.xl},
-  lg: {paddingVertical: spacing.lg, paddingHorizontal: spacing.xxl},
+  sm: {paddingVertical: spacing.sm, paddingHorizontal: spacing.md, minHeight: 40},
+  md: {paddingVertical: spacing.md, paddingHorizontal: spacing.xl, minHeight: 48},
+  lg: {paddingVertical: spacing.lg, paddingHorizontal: spacing.xxl, minHeight: 54},
 };
 
 const sizeTextStyles: Record<Size, TextStyle> = {
@@ -98,8 +112,18 @@ const sizeTextStyles: Record<Size, TextStyle> = {
 const variantStyles: Record<Variant, ViewStyle> = {
   primary: {backgroundColor: colors.primary},
   secondary: {backgroundColor: colors.secondary},
-  outline: {backgroundColor: 'transparent', borderWidth: 1.5, borderColor: colors.primary},
-  ghost: {backgroundColor: 'transparent'},
+  outline: {
+    backgroundColor: colors.surface,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  ghost: {
+    backgroundColor: 'transparent',
+    shadowOpacity: 0,
+    elevation: 0,
+  },
   danger: {backgroundColor: colors.error},
 };
 
