@@ -100,6 +100,8 @@ export const Input: React.FC<Props> = ({
           placeholderTextColor={colors.textTertiary}
           secureTextEntry={isPassword && !secureVisible}
           {...rest}
+          autoCapitalize={isPassword ? 'none' : rest.autoCapitalize}
+          autoCorrect={isPassword ? false : rest.autoCorrect}
           placeholder={
             typeof rest.placeholder === 'string' ? t(rest.placeholder) : rest.placeholder
           }

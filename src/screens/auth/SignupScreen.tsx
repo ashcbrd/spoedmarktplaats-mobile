@@ -202,8 +202,9 @@ export const SignupScreen: React.FC<Props> = ({navigation, route}) => {
                 placeholder="Minimaal 8 tekens"
                 leftIcon="lock-outline"
                 isPassword
-                autoComplete="off"
-                textContentType="none"
+                autoComplete="password-new"
+                textContentType="newPassword"
+                importantForAutofill="no"
                 autoCorrect={false}
                 spellCheck={false}
                 value={value}
@@ -223,8 +224,9 @@ export const SignupScreen: React.FC<Props> = ({navigation, route}) => {
                 placeholder="Herhaal wachtwoord"
                 leftIcon="lock-check-outline"
                 isPassword
-                autoComplete="off"
-                textContentType="none"
+                autoComplete="password-new"
+                textContentType="newPassword"
+                importantForAutofill="no"
                 autoCorrect={false}
                 spellCheck={false}
                 value={value}
