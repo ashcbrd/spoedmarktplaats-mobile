@@ -10,10 +10,15 @@ export interface ApiError {
 export const parseApiError = (error: unknown): ApiError => {
   if (error instanceof AxiosError) {
     const data = error.response?.data;
+    const envelopeError = data?.error;
     return {
-      message: data?.message ?? error.message ?? 'Er ging iets mis',
-      code: data?.code,
-      status: error.response?.status,
+      message:
+        envelopeError?.message ??
+        data?.message ??
+        error.message ??
+        'Er ging iets mis',
+      code: envelopeError?.code ?? data?.code,
+      status: envelopeError?.status ?? data?.statusCode ?? error.response?.status,
     };
   }
   if (error instanceof Error) {

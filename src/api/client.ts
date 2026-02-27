@@ -6,6 +6,26 @@ import {useNetworkStore} from '../store/networkStore';
 
 const SESSION_IDLE_LIMIT_MS = 15 * 60 * 1000;
 
+type ApiEnvelope<T> = {
+  success: boolean;
+  data?: T;
+  error?: {
+    code?: string;
+    status?: number;
+    message?: string;
+  };
+  meta?: {
+    requestId?: string;
+    timestamp?: string;
+    path?: string;
+  };
+};
+
+const isEnvelope = (value: unknown): value is ApiEnvelope<unknown> => {
+  if (!value || typeof value !== 'object') return false;
+  return Object.prototype.hasOwnProperty.call(value, 'success');
+};
+
 const createApiClient = (): AxiosInstance => {
   const client = axios.create({
     baseURL: ENV.API_BASE_URL,
@@ -41,6 +61,10 @@ const createApiClient = (): AxiosInstance => {
   // ── Refresh on 401 ─────────────────────
   client.interceptors.response.use(
     res => {
+      if (isEnvelope(res.data) && res.data.success && 'data' in res.data) {
+        res.data = res.data.data;
+      }
+
       useAuthStore.getState().touchSession();
       useNetworkStore.getState().markApiHealthy();
       return res;

@@ -48,7 +48,7 @@ export const useCredits = () => {
       deduct(cost); // optimistic
       return true;
     },
-    [balance, deduct, navigation],
+    [balance, deduct, language, navigation, t],
   );
 
   return {balance, checkAndConsume};

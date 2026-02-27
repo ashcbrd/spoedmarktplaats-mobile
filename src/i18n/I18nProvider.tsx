@@ -1,5 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, {createContext, useContext, useEffect, useMemo, useState} from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {Alert, AlertButton, AlertOptions} from 'react-native';
 import {setRuntimeLanguage} from './runtimeLanguage';
 import {Language, translateNode, translateText} from './translateText';
@@ -38,21 +45,24 @@ export const I18nProvider: React.FC<{children: React.ReactNode}> = ({children}) 
       .catch(() => undefined);
   }, []);
 
-  const setLanguage = (nextLanguage: Language) => {
+  const setLanguage = useCallback((nextLanguage: Language) => {
     setLanguageState(nextLanguage);
     setRuntimeLanguage(nextLanguage);
     AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, nextLanguage).catch(() => undefined);
-  };
+  }, []);
 
-  const toggleLanguage = () => {
+  const toggleLanguage = useCallback(() => {
     setLanguage(language === 'nl' ? 'en' : 'nl');
-  };
+  }, [language, setLanguage]);
 
-  const t = (value: string) => translateText(value, language);
+  const t = useCallback((value: string) => translateText(value, language), [language]);
 
-  const tNode = (node: React.ReactNode) => {
-    return translateNode(node, t);
-  };
+  const tNode = useCallback(
+    (node: React.ReactNode) => {
+      return translateNode(node, t);
+    },
+    [t],
+  );
 
   useEffect(() => {
     const originalAlert = Alert.alert;
@@ -79,7 +89,7 @@ export const I18nProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     return () => {
       Alert.alert = originalAlert;
     };
-  }, [language]);
+  }, [t]);
 
   const value = useMemo<I18nContextValue>(() => {
     return {
@@ -89,7 +99,7 @@ export const I18nProvider: React.FC<{children: React.ReactNode}> = ({children}) 
       t,
       tNode,
     };
-  }, [language]);
+  }, [language, setLanguage, t, tNode, toggleLanguage]);
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 };
