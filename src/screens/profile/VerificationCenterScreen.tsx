@@ -81,7 +81,9 @@ export const VerificationCenterScreen: React.FC = () => {
         onUpload={() =>
           Alert.alert(
             'Info',
-            'Telefoonverificatie is al gedaan bij registratie.',
+            user?.phoneVerified
+              ? 'Telefoonverificatie is al gedaan bij registratie.'
+              : 'Je telefoonnummer is nog niet geverifieerd. Neem contact op met support.',
           )
         }
       />

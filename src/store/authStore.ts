@@ -9,6 +9,7 @@ interface AuthState {
   isAuthenticated: boolean;
   user: User | null;
   lastActivityAt: number | null;
+  pendingOtpVerification: boolean;
 
   setTokens: (token: string, refreshToken: string) => void;
   setUser: (user: User) => void;
@@ -16,6 +17,7 @@ interface AuthState {
   touchSession: () => void;
   hasSessionExpired: (maxIdleMs: number) => boolean;
   clearAuth: () => void;
+  setPendingOtpVerification: (val: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -26,6 +28,7 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       user: null,
       lastActivityAt: null,
+      pendingOtpVerification: false,
 
       setTokens: (token, refreshToken) =>
         set({
@@ -60,11 +63,21 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: false,
           user: null,
           lastActivityAt: null,
+          pendingOtpVerification: false,
         }),
+
+      setPendingOtpVerification: val => set({pendingOtpVerification: val}),
     }),
     {
       name: 'auth-storage',
       storage: createJSONStorage(() => AsyncStorage),
+      partialize: state => ({
+        token: state.token,
+        refreshToken: state.refreshToken,
+        isAuthenticated: state.isAuthenticated,
+        user: state.user,
+        lastActivityAt: state.lastActivityAt,
+      }),
     },
   ),
 );

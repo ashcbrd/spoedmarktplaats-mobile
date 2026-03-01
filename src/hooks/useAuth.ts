@@ -18,6 +18,9 @@ export const useAuth = () => {
       store.setUser(data.user);
       const { balance } = await creditsApi.balance();
       useCreditsStore.getState().setBalance(balance);
+      if (data.user.phone) {
+        store.setPendingOtpVerification(true);
+      }
     },
     onError: e => showErrorAlert(e, t('Inloggen mislukt')),
   });

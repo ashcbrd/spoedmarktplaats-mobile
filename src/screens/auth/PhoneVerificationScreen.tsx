@@ -9,22 +9,23 @@ import {
   Platform,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import type {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {useNavigation} from '@react-navigation/native';
 import {colors} from '../../theme/colors';
 import {typography} from '../../theme/typography';
 import {spacing, borderRadius} from '../../theme/spacing';
 import {Button} from '../../components/common/Button';
 import {useAuth} from '../../hooks/useAuth';
 import {useI18n} from '../../i18n/I18nProvider';
-import type {AuthStackParamList} from '../../types/navigation';
-
-type Props = NativeStackScreenProps<AuthStackParamList, 'PhoneVerification'>;
+import {useAuthStore} from '../../store/authStore';
 
 const CODE_LENGTH = 6;
 const RESEND_COOLDOWN = 30;
 
-export const PhoneVerificationScreen: React.FC<Props> = ({navigation}) => {
+export const PhoneVerificationScreen: React.FC = () => {
+  const navigation = useNavigation<any>();
   const {user, sendOtp, verifyPhone} = useAuth();
+  const pendingOtpVerification = useAuthStore(s => s.pendingOtpVerification);
+  const setPendingOtpVerification = useAuthStore(s => s.setPendingOtpVerification);
   const {language} = useI18n();
 
   const [code, setCode] = useState<string[]>(Array(CODE_LENGTH).fill(''));
@@ -101,11 +102,16 @@ export const PhoneVerificationScreen: React.FC<Props> = ({navigation}) => {
     setError('');
     try {
       await verifyPhone(fullCode);
-      // Navigate based on user role
-      if (user?.role === 'provider') {
-        navigation.replace('ProviderOnboarding');
+      if (pendingOtpVerification) {
+        // Login context — clear flag, RootNavigator transitions to Main automatically
+        setPendingOtpVerification(false);
       } else {
-        navigation.replace('ClientOnboarding');
+        // Signup context — navigate to role-specific onboarding
+        if (user?.role === 'provider') {
+          navigation.replace('ProviderOnboarding');
+        } else {
+          navigation.replace('ClientOnboarding');
+        }
       }
     } catch (err: any) {
       const message =

@@ -16,7 +16,7 @@ export const usersApi = {
 
   // ── Verification ─────────────────
   getVerificationStatus: () =>
-    apiClient.get<ProviderVerification>('/verification/status').then(r => r.data),
+    apiClient.get<ProviderVerification>('/users/me/verification').then(r => r.data),
 
   uploadId: (formData: FormData) =>
     apiClient

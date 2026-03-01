@@ -17,7 +17,6 @@ import { spacing, borderRadius } from '../../theme/spacing';
 import { usePlaceBid } from '../../hooks/useBids';
 import { useCredits } from '../../hooks/useCredits';
 import { useVerification } from '../../hooks/useVerification';
-import { useAuthStore } from '../../store/authStore';
 import { CREDIT_COSTS } from '../../config/constants';
 import type { FeedStackParamList } from '../../types/navigation';
 
@@ -25,7 +24,6 @@ export const PlaceBidScreen: React.FC = () => {
   const route = useRoute<RouteProp<FeedStackParamList, 'PlaceBid'>>();
   const navigation = useNavigation<any>();
   const { jobId } = route.params;
-  const user = useAuthStore(s => s.user);
   const { verification, canBid } = useVerification();
   const { checkAndConsume } = useCredits();
   const placeBid = usePlaceBid();
@@ -37,18 +35,6 @@ export const PlaceBidScreen: React.FC = () => {
   const [message, setMessage] = useState('');
 
   const handleSubmit = async () => {
-    // Gate: phone verified
-    if (!user?.phoneVerified) {
-      Alert.alert('Verificatie vereist', 'Verifieer eerst je telefoonnummer.', [
-        {
-          text: 'OK',
-          onPress: () =>
-            navigation.navigate('ProfileTab', { screen: 'VerificationCenter' }),
-        },
-      ]);
-      return;
-    }
-
     // Gate: verification
     const check = canBid(verification);
     if (!check.allowed) {

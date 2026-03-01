@@ -59,6 +59,7 @@ export type ProfileStackParamList = {
 export type RootStackParamList = {
   Auth: NavigatorScreenParams<AuthStackParamList>;
   Main: NavigatorScreenParams<MainTabParamList>;
+  OtpVerification: undefined;
 };
 
 // re-export for convenience
