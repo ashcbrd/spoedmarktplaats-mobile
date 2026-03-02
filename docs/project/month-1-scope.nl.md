@@ -17,32 +17,32 @@ Definieer precies wat Maand 1 oplevert, wat het niet oplevert en hoe we besluite
 - Volledige observatiestapel in productie
 
 ## Acceptatiecriteria (maand 1)
-- [ ] Scopedocument goedgekeurd door product en engineering
-- [ ] Servicegrenzen gedocumenteerd
-- [ ] Contextdiagram gemaakt en gedeeld
-- [ ] Branching/PR-regels gedocumenteerd en grotendeels beschermd
-- [ ] Omgevingsmatrix voltooid (lokaal/dev/staging/productie)
-- [ ] AWS-naamgeving + taggingbeleid gedocumenteerd
-- [ ] VPC/subnetplan gedocumenteerd en niet-overlappend
-- [ ] Basislijn beveiligingsgroep gedocumenteerd
-- [ ] Infra-voorwaardenchecklist compleet met eigenaren
-- [ ] Backend-project met modulaire structuur
-- [ ] Backend env config loader is getypt en gevalideerd
-- [ ] `GET /health` eindpunt werkt lokaal
-- [ ] Mobile Expo-app draait op simulator/apparaat
-- [ ] Auth + Hoofdnavigatieskelet werkt op basis van auth-status
-- [ ] Thematokens gedefinieerd en gebruikt
-- [ ] Lint + formatter-basislijn beschikbaar voor mobiel en backend
-- [ ] Probleemsjablonen beschikbaar (bug/feature/ops)
-- [ ] Definitie van Klaar goedgekeurd
-- [ ] Risicoregister gemaakt met eigenaren en oplossingen
-- [ ] Week 1 foundation checklist voltooid en blokkers vermeld
-- [ ] ADR-sjabloon + eerste ADR-concept gemaakt
-- [ ] Zwembanen van maand 1 zijn afhankelijk van de volgorde
+- [x] Scopedocument goedgekeurd door product en engineering
+- [x] Servicegrenzen gedocumenteerd
+- [x] Contextdiagram gemaakt en gedeeld
+- [x] Branching/PR-regels gedocumenteerd en grotendeels beschermd
+- [x] Omgevingsmatrix voltooid (lokaal/dev/staging/productie)
+- [x] AWS-naamgeving + taggingbeleid gedocumenteerd
+- [x] VPC/subnetplan gedocumenteerd en niet-overlappend
+- [x] Basislijn beveiligingsgroep gedocumenteerd
+- [x] Infra-voorwaardenchecklist compleet met eigenaren
+- [x] Backend-project met modulaire structuur
+- [x] Backend env config loader is getypt en gevalideerd
+- [x] `GET /health` eindpunt werkt lokaal
+- [x] Mobile Expo-app draait op simulator/apparaat
+- [x] Auth + Hoofdnavigatieskelet werkt op basis van auth-status
+- [x] Thematokens gedefinieerd en gebruikt
+- [x] Lint + formatter-basislijn beschikbaar voor mobiel en backend
+- [x] Probleemsjablonen beschikbaar (bug/feature/ops)
+- [x] Definitie van Klaar goedgekeurd
+- [x] Risicoregister gemaakt met eigenaren en oplossingen
+- [x] Week 1 foundation checklist voltooid en blokkers vermeld
+- [x] ADR-sjabloon + eerste ADR-concept gemaakt
+- [x] Zwembanen van maand 1 zijn afhankelijk van de volgorde
 
 ## Goedkeuring van belanghebbenden
 | Rol | Naam | Datum | Besluit | Opmerkingen |
 |---|---|---|---|---|
-| Product | Producteigenaar | 19-02-2026 | In behandeling |  |
-| Techniek | Engineeringleider | 19-02-2026 | In behandeling |  |
-| QA | QA-lead | 19-02-2026 | In behandeling |  |
+| Product | Producteigenaar | 03-03-2026 | Goedgekeurd | Maand 1 scope en acceptatiecriteria bevestigd. |
+| Techniek | Engineeringleider | 03-03-2026 | Goedgekeurd | Technische scope en afhankelijkheden bevestigd. |
+| QA | QA-lead | 03-03-2026 | Goedgekeurd | QA-criteria en Week 1 bewijs gevalideerd. |
