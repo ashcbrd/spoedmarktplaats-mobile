@@ -4,13 +4,16 @@ import {useNavigation} from '@react-navigation/native';
 import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
 import {Button} from '../../components/common/Button';
 import {Input} from '../../components/common/Input';
+import {VerificationBadge} from '../../components/common/VerificationBadge';
 import {colors} from '../../theme/colors';
 import {typography} from '../../theme/typography';
 import {spacing, borderRadius} from '../../theme/spacing';
 import {SUBCATEGORIES} from '../../config/constants';
+import {useAuthStore} from '../../store/authStore';
 
 export const ProviderOnboardingScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const user = useAuthStore(s => s.user);
   const [step, setStep] = useState(0);
   const [selectedCats, setSelectedCats] = useState<string[]>([]);
   const [postcode, setPostcode] = useState('');
@@ -43,6 +46,12 @@ export const ProviderOnboardingScreen: React.FC = () => {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
+        <View style={styles.badgeRow}>
+          <VerificationBadge label="E-mail" verified={Boolean(user?.emailVerified)} />
+          <VerificationBadge label="Telefoon" verified={Boolean(user?.phoneVerified)} />
+          <VerificationBadge label="ID" verified={false} />
+        </View>
+
         {step === 0 && (
           <>
             <Text style={styles.title}>Wat voor werk doe je?</Text>
@@ -124,6 +133,12 @@ const styles = StyleSheet.create({
   dot: {width: 8, height: 8, borderRadius: 4, backgroundColor: colors.border},
   dotActive: {backgroundColor: colors.primary, width: 24},
   content: {padding: spacing.xl, paddingBottom: spacing.huge},
+  badgeRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
   title: {...typography.h2, color: colors.textPrimary, marginBottom: spacing.xs},
   subtitle: {...typography.body, color: colors.textSecondary, marginBottom: spacing.xxl},
   grid: {flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm},

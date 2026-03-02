@@ -28,8 +28,14 @@ export const jobsApi = {
   updateDraft: (jobId: string, body: Partial<Job>) =>
     apiClient.put<Job>(`/jobs/draft/${jobId}`, body).then(r => r.data),
 
-  publish: (jobId: string) =>
-    apiClient.post<Job>(`/jobs/${jobId}/publish`).then(r => r.data),
+  publish: (jobId: string, options?: {idempotencyKey?: string}) =>
+    apiClient
+      .post<Job>(`/jobs/${jobId}/publish`, undefined, {
+        headers: options?.idempotencyKey
+          ? {'x-idempotency-key': options.idempotencyKey}
+          : undefined,
+      })
+      .then(r => r.data),
 
   cancel: (jobId: string) =>
     apiClient.post<Job>(`/jobs/${jobId}/cancel`).then(r => r.data),

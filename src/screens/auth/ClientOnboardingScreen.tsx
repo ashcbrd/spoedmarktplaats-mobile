@@ -3,6 +3,7 @@ import {View, Text, StyleSheet, ScrollView, Switch} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {Button} from '../../components/common/Button';
 import {Input} from '../../components/common/Input';
+import {VerificationBadge} from '../../components/common/VerificationBadge';
 import {colors} from '../../theme/colors';
 import {typography} from '../../theme/typography';
 import {spacing} from '../../theme/spacing';
@@ -34,6 +35,10 @@ export const ClientOnboardingScreen: React.FC = () => {
         <>
           <Text style={styles.title}>Bedrijf instellen</Text>
           <Text style={styles.subtitle}>Vul je bedrijfsgegevens in om te beginnen</Text>
+          <View style={styles.badgeRow}>
+            <VerificationBadge label="E-mail" verified={Boolean(user?.emailVerified)} />
+            <VerificationBadge label="Telefoon" verified={Boolean(user?.phoneVerified)} />
+          </View>
 
           <Input
             label="Bedrijfsnaam"
@@ -67,6 +72,10 @@ export const ClientOnboardingScreen: React.FC = () => {
         <>
           <Text style={styles.title}>Welkom!</Text>
           <Text style={styles.subtitle}>Je account is aangemaakt. Je kunt nu direct een spoedopdracht plaatsen.</Text>
+          <View style={styles.badgeRow}>
+            <VerificationBadge label="E-mail" verified={Boolean(user?.emailVerified)} />
+            <VerificationBadge label="Telefoon" verified={Boolean(user?.phoneVerified)} />
+          </View>
         </>
       )}
 
@@ -85,6 +94,7 @@ const styles = StyleSheet.create({
   content: {padding: spacing.xl},
   title: {...typography.h1, color: colors.textPrimary, marginBottom: spacing.sm},
   subtitle: {...typography.body, color: colors.textSecondary, marginBottom: spacing.xxl},
+  badgeRow: {flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.lg},
   sectionTitle: {...typography.h4, color: colors.textPrimary, marginTop: spacing.xl, marginBottom: spacing.md},
   switchRow: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.xl, gap: spacing.md},
   switchLabel: {...typography.body, color: colors.textPrimary, flex: 1},

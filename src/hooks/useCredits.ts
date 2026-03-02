@@ -8,7 +8,7 @@ import {useI18n} from '../i18n/I18nProvider';
 import {translateText} from '../i18n/translateText';
 
 export const useCredits = () => {
-  const {balance, setBalance, deduct} = useCreditsStore();
+  const {balance, setBalance} = useCreditsStore();
   const navigation = useNavigation<any>();
   const {language, t} = useI18n();
 
@@ -45,10 +45,9 @@ export const useCredits = () => {
         );
         return false;
       }
-      deduct(cost); // optimistic
       return true;
     },
-    [balance, deduct, language, navigation, t],
+    [balance, language, navigation, t],
   );
 
   return {balance, checkAndConsume};
