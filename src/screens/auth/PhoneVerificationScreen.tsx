@@ -28,7 +28,7 @@ export const PhoneVerificationScreen: React.FC = () => {
   const setPendingOtpVerification = useAuthStore(s => s.setPendingOtpVerification);
   const pendingOnboarding = useAuthStore(s => s.pendingOnboarding);
   const setPendingOnboarding = useAuthStore(s => s.setPendingOnboarding);
-  const {language} = useI18n();
+  const {language, t} = useI18n();
 
   const [code, setCode] = useState<string[]>(Array(CODE_LENGTH).fill(''));
   const [loading, setLoading] = useState(false);
@@ -124,7 +124,7 @@ export const PhoneVerificationScreen: React.FC = () => {
       setError('');
       inputRefs.current[0]?.focus();
     } catch {
-      setError('Code versturen mislukt. Probeer het opnieuw.');
+      setError(t('Code versturen mislukt. Probeer het opnieuw.'));
     }
   };
 
@@ -134,11 +134,11 @@ export const PhoneVerificationScreen: React.FC = () => {
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={styles.content}>
-          <Text style={styles.title}>Verificatie</Text>
+          <Text style={styles.title}>{t('Verificatie')}</Text>
           <Text style={styles.subtitle}>
-            Voer de 6-cijferige code in die we naar{' '}
-            <Text style={styles.phoneHighlight}>{user?.phone ?? 'je telefoon'}</Text>{' '}
-            hebben gestuurd.
+            {t('Voer de 6-cijferige code in die we naar')}{' '}
+            <Text style={styles.phoneHighlight}>{user?.phone ?? t('je telefoon')}</Text>{' '}
+            {t('hebben gestuurd.')}
           </Text>
 
           {/* OTP boxes */}
