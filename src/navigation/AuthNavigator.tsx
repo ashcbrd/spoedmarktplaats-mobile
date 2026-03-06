@@ -31,8 +31,30 @@ export const AuthNavigator: React.FC = () => {
         gestureEnabled: true,
       }}>
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Signup" component={SignupScreen} />
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{
+          headerShown: true,
+          headerTitleStyle,
+          headerTitleAlign: 'center',
+          headerShadowVisible: false,
+          headerBackTitleVisible: false,
+          title: t('Inloggen'),
+        }}
+      />
+      <Stack.Screen
+        name="Signup"
+        component={SignupScreen}
+        options={{
+          headerShown: true,
+          headerTitleStyle,
+          headerTitleAlign: 'center',
+          headerShadowVisible: false,
+          headerBackTitleVisible: false,
+          title: t('Account aanmaken'),
+        }}
+      />
       <Stack.Screen
         name="PhoneVerification"
         component={PhoneVerificationScreen}
