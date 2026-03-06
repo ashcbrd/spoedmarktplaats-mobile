@@ -46,6 +46,7 @@ export const JobDetailScreen: React.FC = () => {
 
   const expired = job ? isExpired(job.bidWindowEnd) : false;
   const isOwner = job?.clientUserId === user?.id;
+  const isProvider = user?.role === 'provider';
   const subcat = job
     ? SUBCATEGORIES.find(s => s.key === job.subcategory)
     : undefined;
@@ -269,7 +270,7 @@ export const JobDetailScreen: React.FC = () => {
             icon={<Icon name="cog" size={20} color={colors.white} />}
             style={styles.ctaButton}
           />
-        ) : (
+        ) : isProvider ? (
           <Button
             title="Bod plaatsen"
             onPress={handlePlaceBid}
@@ -280,7 +281,7 @@ export const JobDetailScreen: React.FC = () => {
             }
             style={styles.ctaButton}
           />
-        )}
+        ) : null}
       </View>
     </SafeAreaView>
   );
