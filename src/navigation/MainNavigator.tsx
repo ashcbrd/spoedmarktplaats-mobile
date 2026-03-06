@@ -37,6 +37,7 @@ import { PlansScreen } from '../screens/profile/PlansScreen';
 import { PreferencesScreen } from '../screens/profile/PreferencesScreen';
 import { PrivatePoolScreen } from '../screens/profile/PrivatePoolScreen';
 import { NotificationsScreen } from '../screens/profile/NotificationsScreen';
+import { CompanyProfileScreen } from '../screens/profile/CompanyProfileScreen';
 
 // ── Stack defaults ───────────────────────────
 const stackScreenOptions = {
@@ -210,6 +211,11 @@ const ProfileNavigator = () => {
         name="Notifications"
         component={NotificationsScreen}
         options={{ title: t('Meldingen') }}
+      />
+      <ProfileStack.Screen
+        name="CompanyProfile"
+        component={CompanyProfileScreen}
+        options={{ title: t('Bedrijfsprofiel') }}
       />
     </ProfileStack.Navigator>
   );

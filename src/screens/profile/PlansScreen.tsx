@@ -1,92 +1,35 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
+import { useQuery } from '@tanstack/react-query';
 import { Card } from '../../components/common/Card';
 import { Button } from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 import { spacing } from '../../theme/spacing';
-import { useAuthStore } from '../../store/authStore';
-import type { SubscriptionTier } from '../../types/models';
-
-const PROVIDER_PLANS: SubscriptionTier[] = [
-  {
-    key: 'free',
-    name: 'Free',
-    priceMonthly: 0,
-    credits: 3,
-    features: ['3 gratis credits', 'Basis profiel', 'Push meldingen'],
-  },
-  {
-    key: 'pro',
-    name: 'Pro',
-    priceMonthly: 29,
-    credits: 50,
-    features: [
-      '50 credits/maand',
-      'Prioriteit in zoekresultaten',
-      'Uitgebreid profiel',
-      'Alle meldingen',
-    ],
-  },
-  {
-    key: 'team',
-    name: 'Team',
-    priceMonthly: 79,
-    credits: 'unlimited',
-    features: [
-      'Onbeperkt credits',
-      'Team seats',
-      'Prioriteit support',
-      'Alle Pro features',
-    ],
-  },
-];
-
-const CLIENT_PLANS: SubscriptionTier[] = [
-  {
-    key: 'free',
-    name: 'Free',
-    priceMonthly: 0,
-    credits: 3,
-    features: ['3 gratis credits', 'Opdrachten plaatsen', 'Push meldingen'],
-  },
-  {
-    key: 'business',
-    name: 'Business',
-    priceMonthly: 49,
-    credits: 50,
-    features: [
-      '50 credits/maand',
-      'Privaat Pool',
-      'Boost & Ping',
-      'Alle meldingen',
-    ],
-  },
-  {
-    key: 'enterprise',
-    name: 'Enterprise',
-    priceMonthly: 149,
-    credits: 'unlimited',
-    features: [
-      'Onbeperkt credits',
-      'Team seats',
-      'Prioriteit support',
-      'API toegang',
-      'Rapportages',
-    ],
-  },
-];
+import { creditsApi } from '../../api/endpoints/credits';
+import { useI18n } from '../../i18n/I18nProvider';
 
 export const PlansScreen: React.FC = () => {
-  const role = useAuthStore(s => s.user?.role);
-  const plans = role === 'provider' ? PROVIDER_PLANS : CLIENT_PLANS;
+  const { t } = useI18n();
+  const { data: plans = [], isLoading } = useQuery({
+    queryKey: ['subscription-plans'],
+    queryFn: creditsApi.plans,
+  });
+
+  if (isLoading) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator color={colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Kies je abonnement</Text>
-      <Text style={styles.subtitle}>Upgrade voor meer credits en features</Text>
+      <Text style={styles.title}>{t('Kies je abonnement')}</Text>
+      <Text style={styles.subtitle}>{t('Upgrade voor meer credits en features')}</Text>
 
       {plans.map((plan, idx) => (
         <Card
@@ -99,7 +42,7 @@ export const PlansScreen: React.FC = () => {
         >
           {idx === 1 && (
             <Badge
-              label="Populair"
+              label={t('Populair')}
               variant="primary"
               style={styles.popularBadge}
             />
@@ -107,31 +50,31 @@ export const PlansScreen: React.FC = () => {
           <Text style={styles.planName}>{plan.name}</Text>
           <View style={styles.priceRow}>
             <Text style={styles.price}>
-              {plan.priceMonthly === 0 ? 'Gratis' : `€${plan.priceMonthly}`}
+              {plan.priceMonthly === 0 ? t('Gratis') : `€${plan.priceMonthly}`}
             </Text>
             {plan.priceMonthly > 0 && (
-              <Text style={styles.priceUnit}>/maand</Text>
+              <Text style={styles.priceUnit}>{t('/maand')}</Text>
             )}
           </View>
           <Text style={styles.credits}>
             {plan.credits === 'unlimited'
-              ? 'Onbeperkt credits'
+              ? t('Onbeperkt credits')
               : `${plan.credits} credits`}
           </Text>
           <View style={styles.features}>
             {plan.features.map(f => (
               <View key={f} style={styles.featureRow}>
                 <Icon name="check" size={16} color={colors.success} />
-                <Text style={styles.featureText}>{f}</Text>
+                <Text style={styles.featureText}>{t(f)}</Text>
               </View>
             ))}
           </View>
           <Button
-            title={plan.key === 'free' ? 'Huidig plan' : 'Kies dit plan'}
+            title={plan.key === 'free' ? t('Huidig plan') : t('Kies dit plan')}
             onPress={() =>
               Alert.alert(
-                'Abonnement',
-                'Betaling wordt extern afgehandeld in de MVP.',
+                t('Abonnement'),
+                t('Betaling wordt extern afgehandeld in de MVP.'),
               )
             }
             variant={
@@ -143,13 +86,14 @@ export const PlansScreen: React.FC = () => {
       ))}
 
       <Text style={styles.disclaimer}>
-        Betaling wordt extern afgehandeld. Geen in-app betalingen in de MVP.
+        {t('Betaling wordt extern afgehandeld. Geen in-app betalingen in de MVP.')}
       </Text>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  loader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   container: { flex: 1, backgroundColor: colors.background },
   content: { padding: spacing.lg, paddingBottom: spacing.huge },
   title: { ...typography.h2, color: colors.textPrimary, textAlign: 'center' },

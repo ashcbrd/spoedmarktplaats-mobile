@@ -4,6 +4,7 @@ import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
 import { colors } from '../../theme/colors';
 import { borderRadius, spacing } from '../../theme/spacing';
 import { typography } from '../../theme/typography';
+import { useI18n } from '../../i18n/I18nProvider';
 
 type VerificationBadgeProps = {
   label: string;
@@ -11,6 +12,7 @@ type VerificationBadgeProps = {
 };
 
 export const VerificationBadge: React.FC<VerificationBadgeProps> = ({ label, verified }) => {
+  const {t} = useI18n();
   return (
     <View style={[styles.badge, verified ? styles.verified : styles.pending]}>
       <Icon
@@ -20,7 +22,7 @@ export const VerificationBadge: React.FC<VerificationBadgeProps> = ({ label, ver
       />
       <Text style={styles.label}>{label}</Text>
       <Text style={[styles.status, verified ? styles.statusVerified : styles.statusPending]}>
-        {verified ? 'Geverifieerd' : 'In behandeling'}
+        {verified ? t('Geverifieerd') : t('In behandeling')}
       </Text>
     </View>
   );

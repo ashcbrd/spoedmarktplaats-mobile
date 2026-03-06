@@ -9,12 +9,14 @@ import { typography } from '../../theme/typography';
 import { spacing } from '../../theme/spacing';
 import { useDealActions } from '../../hooks/useDeals';
 import { uploadMultipleAssets, type Asset } from '../../services/media.service';
+import { useI18n } from '../../i18n/I18nProvider';
 import type { DealsStackParamList } from '../../types/navigation';
 
 export const CompletionUploadScreen: React.FC = () => {
   const route = useRoute<RouteProp<DealsStackParamList, 'CompletionUpload'>>();
   const navigation = useNavigation<any>();
   const { dealId } = route.params;
+  const {t} = useI18n();
   const { complete, completePending } = useDealActions();
 
   const [photos, setPhotos] = useState<Asset[]>([]);
@@ -26,8 +28,8 @@ export const CompletionUploadScreen: React.FC = () => {
   const handleSubmit = async () => {
     if (!canSubmit) {
       Alert.alert(
-        'Onvolledig',
-        'Voeg minimaal 1 foto toe en schrijf een notitie (min. 10 tekens).',
+        t('Onvolledig'),
+        t('Voeg minimaal 1 foto toe en schrijf een notitie (min. 10 tekens).'),
       );
       return;
     }
@@ -43,9 +45,9 @@ export const CompletionUploadScreen: React.FC = () => {
         photoIds: attachments.map(a => a.id),
       });
       Alert.alert(
-        'Gelukt!',
-        'Het werk is als voltooid gemarkeerd. Wacht op bevestiging van de opdrachtgever.',
-        [{ text: 'OK', onPress: () => navigation.goBack() }],
+        t('Gelukt!'),
+        t('Het werk is als voltooid gemarkeerd. Wacht op bevestiging van de opdrachtgever.'),
+        [{ text: t('OK'), onPress: () => navigation.goBack() }],
       );
     } catch {
       // handled by hook
@@ -56,20 +58,20 @@ export const CompletionUploadScreen: React.FC = () => {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Werk afronden</Text>
-      <Text style={styles.subtitle}>Upload bewijs van het voltooide werk</Text>
+      <Text style={styles.title}>{t('Werk afronden')}</Text>
+      <Text style={styles.subtitle}>{t('Upload bewijs van het voltooide werk')}</Text>
 
       <ImagePickerButton
         assets={photos}
         onChange={setPhotos}
         maxPhotos={3}
-        label="Foto's van het voltooide werk (1-3 verplicht)"
+        label={t("Foto's van het voltooide werk (1-3 verplicht)")}
       />
 
       <View style={styles.noteSection}>
         <Input
-          label="Notitie (verplicht, min. 10 tekens)"
-          placeholder="Beschrijf wat er is gedaan..."
+          label={t('Notitie (verplicht, min. 10 tekens)')}
+          placeholder={t('Beschrijf wat er is gedaan...')}
           value={note}
           onChangeText={setNote}
           multiline
@@ -79,7 +81,7 @@ export const CompletionUploadScreen: React.FC = () => {
       </View>
 
       <Button
-        title={uploading ? 'Uploaden...' : 'Voltooiing indienen'}
+        title={uploading ? t('Uploaden...') : t('Voltooiing indienen')}
         onPress={handleSubmit}
         loading={uploading || completePending}
         disabled={!canSubmit}

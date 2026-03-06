@@ -21,9 +21,11 @@ import { typography } from '../../theme/typography';
 import { spacing } from '../../theme/spacing';
 import { usePoolMembers, usePoolActions } from '../../hooks/usePool';
 import { CSV_TEMPLATE_EXAMPLE } from '../../services/csv.service';
+import { useI18n } from '../../i18n/I18nProvider';
 import type { PoolMember } from '../../types/models';
 
 export const PrivatePoolScreen: React.FC = () => {
+  const {t} = useI18n();
   // In real app, orgId comes from user's organization
   const orgId = 'current-org';
   const { data: members, isLoading } = usePoolMembers(orgId);
@@ -43,7 +45,7 @@ export const PrivatePoolScreen: React.FC = () => {
 
   const handleAdd = async () => {
     if (!firstName || !lastName || !email) {
-      Alert.alert('Fout', 'Voornaam, achternaam en e-mail zijn verplicht.');
+      Alert.alert(t('Fout'), t('Voornaam, achternaam en e-mail zijn verplicht.'));
       return;
     }
     await addMember({ firstName, lastName, email, phone: phone || undefined });
@@ -57,20 +59,20 @@ export const PrivatePoolScreen: React.FC = () => {
   const handleCsvImport = () => {
     // In real app, use document picker. Here we show placeholder
     Alert.alert(
-      'CSV Import',
-      'In de volledige versie kun je hier een CSV bestand uploaden.\n\nTemplate format:\n' +
+      t('CSV Import'),
+      t('In de volledige versie kun je hier een CSV bestand uploaden.\n\nTemplate format:\n') +
         CSV_TEMPLATE_EXAMPLE,
     );
   };
 
   const handleRemove = (member: PoolMember) => {
     Alert.alert(
-      'Lid verwijderen',
-      `Weet je zeker dat je ${member.firstName} ${member.lastName} wilt verwijderen?`,
+      t('Lid verwijderen'),
+      t(`Weet je zeker dat je ${member.firstName} ${member.lastName} wilt verwijderen?`),
       [
-        { text: 'Annuleren', style: 'cancel' },
+        { text: t('Annuleren'), style: 'cancel' },
         {
-          text: 'Verwijderen',
+          text: t('Verwijderen'),
           style: 'destructive',
           onPress: () => removeMember(member.id),
         },
@@ -90,10 +92,10 @@ export const PrivatePoolScreen: React.FC = () => {
         <Badge
           label={
             item.status === 'invited'
-              ? 'Uitgenodigd'
+              ? t('Uitgenodigd')
               : item.status === 'accepted'
-              ? 'Geaccepteerd'
-              : 'Afgewezen'
+              ? t('Geaccepteerd')
+              : t('Afgewezen')
           }
           variant={statusVariant[item.status]}
           small
@@ -114,12 +116,12 @@ export const PrivatePoolScreen: React.FC = () => {
     <View style={styles.container}>
       <View style={styles.headerActions}>
         <Button
-          title="Lid toevoegen"
+          title={t('Lid toevoegen')}
           onPress={() => setShowAddModal(true)}
           size="sm"
         />
         <Button
-          title="CSV importeren"
+          title={t('CSV importeren')}
           onPress={handleCsvImport}
           variant="outline"
           size="sm"
@@ -134,8 +136,8 @@ export const PrivatePoolScreen: React.FC = () => {
         ListEmptyComponent={
           <EmptyState
             icon="account-group-outline"
-            title="Lege pool"
-            message="Voeg vakmannen toe aan je privaat pool"
+            title={t('Lege pool')}
+            message={t('Voeg vakmannen toe aan je privaat pool')}
           />
         }
       />
@@ -148,38 +150,38 @@ export const PrivatePoolScreen: React.FC = () => {
       >
         <View style={styles.modal}>
           <View style={styles.modalHeader}>
-            <Text style={typography.h3}>Lid toevoegen</Text>
+            <Text style={typography.h3}>{t('Lid toevoegen')}</Text>
             <TouchableOpacity onPress={() => setShowAddModal(false)}>
               <Icon name="close" size={24} color={colors.textPrimary} />
             </TouchableOpacity>
           </View>
           <ScrollView style={styles.modalBody}>
             <Input
-              label="Voornaam"
+              label={t('Voornaam')}
               value={firstName}
               onChangeText={setFirstName}
             />
             <Input
-              label="Achternaam"
+              label={t('Achternaam')}
               value={lastName}
               onChangeText={setLastName}
             />
             <Input
-              label="E-mail"
+              label={t('E-mail')}
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
               autoCapitalize="none"
             />
             <Input
-              label="Telefoon (optioneel)"
+              label={t('Telefoon (optioneel)')}
               value={phone}
               onChangeText={setPhone}
               keyboardType="phone-pad"
             />
           </ScrollView>
           <View style={styles.modalFooter}>
-            <Button title="Toevoegen" onPress={handleAdd} />
+            <Button title={t('Toevoegen')} onPress={handleAdd} />
           </View>
         </View>
       </Modal>

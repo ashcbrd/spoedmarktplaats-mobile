@@ -20,6 +20,7 @@ import {Button} from '../../components/common/Button';
 import {Input} from '../../components/common/Input';
 import {useAuth} from '../../hooks/useAuth';
 import {signupSchema, type SignupForm} from '../../utils/validators';
+import {useI18n} from '../../i18n/I18nProvider';
 import type {AuthStackParamList} from '../../types/navigation';
 import type {ClientType} from '../../types/models';
 
@@ -35,9 +36,13 @@ const normalizeDutchMobileToE164 = (phone: string): string => {
 };
 
 export const SignupScreen: React.FC<Props> = ({navigation, route}) => {
-  const role = route.params?.role;
   const {signup, signupPending} = useAuth();
+  const {t} = useI18n();
 
+  const [selectedRole, setSelectedRole] = useState<'client' | 'provider' | undefined>(
+    route.params?.role,
+  );
+  const role = selectedRole;
   const [clientType, setClientType] = useState<ClientType>('b2c');
   const [agreedTerms, setAgreedTerms] = useState(false);
 
@@ -59,7 +64,7 @@ export const SignupScreen: React.FC<Props> = ({navigation, route}) => {
 
   const onSubmit = async (data: SignupForm) => {
     if (!agreedTerms) {
-      setError('root', {message: 'Je moet akkoord gaan met de voorwaarden.'});
+      setError('root', {message: t('Je moet akkoord gaan met de voorwaarden.')});
       return;
     }
 
@@ -93,6 +98,38 @@ export const SignupScreen: React.FC<Props> = ({navigation, route}) => {
           keyboardShouldPersistTaps="handled">
           <Text style={styles.title}>{heading}</Text>
 
+          {/* Role selector — shown when no role was passed via navigation */}
+          {!route.params?.role && (
+            <View style={styles.roleRow}>
+              <TouchableOpacity
+                style={[styles.roleButton, role === 'client' && styles.roleButtonActive]}
+                onPress={() => setSelectedRole('client')}
+                activeOpacity={0.7}>
+                <Icon
+                  name="briefcase-outline"
+                  size={22}
+                  color={role === 'client' ? colors.primary : colors.textSecondary}
+                />
+                <Text style={[styles.roleText, role === 'client' && styles.roleTextActive]}>
+                  {t('Ik zoek een vakman')}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.roleButton, role === 'provider' && styles.roleButtonActive]}
+                onPress={() => setSelectedRole('provider')}
+                activeOpacity={0.7}>
+                <Icon
+                  name="hammer-wrench"
+                  size={22}
+                  color={role === 'provider' ? colors.primary : colors.textSecondary}
+                />
+                <Text style={[styles.roleText, role === 'provider' && styles.roleTextActive]}>
+                  {t('Ik ben vakman')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
           {/* B2C / B2B toggle for clients */}
           {role === 'client' && (
             <View style={styles.toggleRow}>
@@ -108,7 +145,7 @@ export const SignupScreen: React.FC<Props> = ({navigation, route}) => {
                     styles.toggleText,
                     clientType === 'b2c' && styles.toggleTextActive,
                   ]}>
-                  Particulier (B2C)
+                  {t('Particulier (B2C)')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -123,7 +160,7 @@ export const SignupScreen: React.FC<Props> = ({navigation, route}) => {
                     styles.toggleText,
                     clientType === 'b2b' && styles.toggleTextActive,
                   ]}>
-                  Zakelijk (B2B)
+                  {t('Zakelijk (B2B)')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -140,7 +177,7 @@ export const SignupScreen: React.FC<Props> = ({navigation, route}) => {
             name="name"
             render={({field: {onChange, onBlur, value}}) => (
               <Input
-                label="Volledige naam"
+                label={t('Volledige naam')}
                 placeholder="Jan Jansen"
                 leftIcon="account-outline"
                 autoCapitalize="words"
@@ -158,7 +195,7 @@ export const SignupScreen: React.FC<Props> = ({navigation, route}) => {
             name="email"
             render={({field: {onChange, onBlur, value}}) => (
               <Input
-                label="E-mailadres"
+                label={t('E-mailadres')}
                 placeholder="jouw@email.nl"
                 leftIcon="email-outline"
                 keyboardType="email-address"
@@ -177,7 +214,7 @@ export const SignupScreen: React.FC<Props> = ({navigation, route}) => {
             name="phone"
             render={({field: {onChange, onBlur, value}}) => (
               <Input
-                label="Telefoonnummer"
+                label={t('Telefoonnummer')}
                 placeholder="0612345678"
                 leftIcon="phone-outline"
                 keyboardType="phone-pad"
@@ -198,8 +235,8 @@ export const SignupScreen: React.FC<Props> = ({navigation, route}) => {
             name="password"
             render={({field: {onChange, onBlur, value}}) => (
               <Input
-                label="Wachtwoord"
-                placeholder="Minimaal 8 tekens"
+                label={t('Wachtwoord')}
+                placeholder={t('Minimaal 8 tekens')}
                 leftIcon="lock-outline"
                 isPassword
                 autoComplete="password-new"
@@ -220,8 +257,8 @@ export const SignupScreen: React.FC<Props> = ({navigation, route}) => {
             name="confirmPassword"
             render={({field: {onChange, onBlur, value}}) => (
               <Input
-                label="Wachtwoord bevestigen"
-                placeholder="Herhaal wachtwoord"
+                label={t('Wachtwoord bevestigen')}
+                placeholder={t('Herhaal wachtwoord')}
                 leftIcon="lock-check-outline"
                 isPassword
                 autoComplete="password-new"
@@ -248,13 +285,13 @@ export const SignupScreen: React.FC<Props> = ({navigation, route}) => {
               color={agreedTerms ? colors.primary : colors.textTertiary}
             />
             <Text style={styles.checkboxLabel}>
-              Ik ga akkoord met de{' '}
-              <Text style={styles.linkText}>algemene voorwaarden</Text>
+              {t('Ik ga akkoord met de')}{' '}
+              <Text style={styles.linkText}>{t('algemene voorwaarden')}</Text>
             </Text>
           </TouchableOpacity>
 
           <Button
-            title="Registreren"
+            title={t('Registreren')}
             onPress={handleSubmit(onSubmit)}
             loading={signupPending}
             size="lg"
@@ -263,11 +300,11 @@ export const SignupScreen: React.FC<Props> = ({navigation, route}) => {
 
           <View style={styles.bottomRow}>
             <Text style={styles.bottomText}>
-              Heb je al een account?{' '}
+              {t('Heb je al een account?')}{' '}
               <Text
                 style={styles.linkText}
                 onPress={() => navigation.navigate('Login')}>
-                Inloggen
+                {t('Inloggen')}
               </Text>
             </Text>
           </View>
@@ -293,6 +330,34 @@ const styles = StyleSheet.create({
     ...typography.h1,
     color: colors.textPrimary,
     marginBottom: spacing.xxl,
+  },
+  roleRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginBottom: spacing.xxl,
+  },
+  roleButton: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.lg,
+    borderRadius: borderRadius.md,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  roleButtonActive: {
+    borderColor: colors.primary,
+    backgroundColor: colors.primary + '0D',
+  },
+  roleText: {
+    ...typography.captionBold,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+  roleTextActive: {
+    color: colors.primary,
   },
   toggleRow: {
     flexDirection: 'row',

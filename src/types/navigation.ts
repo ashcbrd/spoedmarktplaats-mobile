@@ -53,6 +53,7 @@ export type ProfileStackParamList = {
   Preferences: undefined;
   Plans: undefined;
   Notifications: undefined;
+  CompanyProfile: undefined;
 };
 
 // ── Root Stack ──────────────────────────────

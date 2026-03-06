@@ -10,9 +10,11 @@ import {typography} from '../../theme/typography';
 import {spacing, borderRadius} from '../../theme/spacing';
 import {SUBCATEGORIES} from '../../config/constants';
 import {useAuthStore} from '../../store/authStore';
+import {useI18n} from '../../i18n/I18nProvider';
 
 export const ProviderOnboardingScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const {t} = useI18n();
   const user = useAuthStore(s => s.user);
   const [step, setStep] = useState(0);
   const [selectedCats, setSelectedCats] = useState<string[]>([]);
@@ -27,8 +29,10 @@ export const ProviderOnboardingScreen: React.FC = () => {
     );
   };
 
+  const setPendingOnboarding = useAuthStore(s => s.setPendingOnboarding);
+
   const finish = () => {
-    navigation.reset({index: 0, routes: [{name: 'Main'}]});
+    setPendingOnboarding(false);
   };
 
   const canNext =
@@ -47,15 +51,15 @@ export const ProviderOnboardingScreen: React.FC = () => {
 
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.badgeRow}>
-          <VerificationBadge label="E-mail" verified={Boolean(user?.emailVerified)} />
-          <VerificationBadge label="Telefoon" verified={Boolean(user?.phoneVerified)} />
+          <VerificationBadge label={t('E-mail')} verified={Boolean(user?.emailVerified)} />
+          <VerificationBadge label={t('Telefoon')} verified={Boolean(user?.phoneVerified)} />
           <VerificationBadge label="ID" verified={false} />
         </View>
 
         {step === 0 && (
           <>
-            <Text style={styles.title}>Wat voor werk doe je?</Text>
-            <Text style={styles.subtitle}>Selecteer je specialisaties</Text>
+            <Text style={styles.title}>{t('Wat voor werk doe je?')}</Text>
+            <Text style={styles.subtitle}>{t('Selecteer je specialisaties')}</Text>
             <View style={styles.grid}>
               {SUBCATEGORIES.map(s => {
                 const active = selectedCats.includes(s.key);
@@ -75,10 +79,10 @@ export const ProviderOnboardingScreen: React.FC = () => {
 
         {step === 1 && (
           <>
-            <Text style={styles.title}>Waar wil je werken?</Text>
-            <Text style={styles.subtitle}>Stel je werkgebied in</Text>
-            <Input label="Postcode" placeholder="1012 AB" value={postcode} onChangeText={setPostcode} leftIcon="map-marker" />
-            <Text style={styles.label}>Straal: {radius} km</Text>
+            <Text style={styles.title}>{t('Waar wil je werken?')}</Text>
+            <Text style={styles.subtitle}>{t('Stel je werkgebied in')}</Text>
+            <Input label={t('Postcode')} placeholder="1012 AB" value={postcode} onChangeText={setPostcode} leftIcon="map-marker" />
+            <Text style={styles.label}>{t(`Straal: ${radius} km`)}</Text>
             <View style={styles.radiusRow}>
               {[10, 15, 25, 50].map(r => (
                 <TouchableOpacity
@@ -94,10 +98,10 @@ export const ProviderOnboardingScreen: React.FC = () => {
 
         {step === 2 && (
           <>
-            <Text style={styles.title}>Laatste stap</Text>
-            <Text style={styles.subtitle}>Stel je tarief en beschikbaarheid in</Text>
+            <Text style={styles.title}>{t('Laatste stap')}</Text>
+            <Text style={styles.subtitle}>{t('Stel je tarief en beschikbaarheid in')}</Text>
             <Input
-              label="Minimumtarief (€/uur, optioneel)"
+              label={t('Minimumtarief (€/uur, optioneel)')}
               placeholder="35"
               value={minRate}
               onChangeText={setMinRate}
@@ -106,8 +110,8 @@ export const ProviderOnboardingScreen: React.FC = () => {
             />
             <View style={styles.switchRow}>
               <View style={styles.switchInfo}>
-                <Text style={styles.switchLabel}>Beschikbaar voor spoedklussen</Text>
-                <Text style={styles.switchDesc}>Je ontvangt meldingen bij nieuwe opdrachten</Text>
+                <Text style={styles.switchLabel}>{t('Beschikbaar voor spoedklussen')}</Text>
+                <Text style={styles.switchDesc}>{t('Je ontvangt meldingen bij nieuwe opdrachten')}</Text>
               </View>
               <Switch value={available} onValueChange={setAvailable} trackColor={{true: colors.primary, false: colors.border}} />
             </View>
@@ -116,11 +120,11 @@ export const ProviderOnboardingScreen: React.FC = () => {
       </ScrollView>
 
       <View style={styles.footer}>
-        {step > 0 && <Button title="Terug" onPress={() => setStep(step - 1)} variant="ghost" />}
+        {step > 0 && <Button title={t('Terug')} onPress={() => setStep(step - 1)} variant="ghost" />}
         {step < 2 ? (
-          <Button title="Volgende" onPress={() => setStep(step + 1)} disabled={!canNext} style={styles.nextBtn} />
+          <Button title={t('Volgende')} onPress={() => setStep(step + 1)} disabled={!canNext} style={styles.nextBtn} />
         ) : (
-          <Button title="Voltooien" onPress={finish} style={styles.nextBtn} />
+          <Button title={t('Voltooien')} onPress={finish} style={styles.nextBtn} />
         )}
       </View>
     </View>

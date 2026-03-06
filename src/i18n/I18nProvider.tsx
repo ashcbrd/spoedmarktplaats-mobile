@@ -33,6 +33,7 @@ const I18nContext = createContext<I18nContextValue>(defaultValue);
 
 export const I18nProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
   const [language, setLanguageState] = useState<Language>('nl');
+  const [languageLoaded, setLanguageLoaded] = useState(false);
 
   useEffect(() => {
     AsyncStorage.getItem(LANGUAGE_STORAGE_KEY)
@@ -41,8 +42,9 @@ export const I18nProvider: React.FC<{children: React.ReactNode}> = ({children}) 
           setLanguageState(stored);
           setRuntimeLanguage(stored);
         }
+        setLanguageLoaded(true);
       })
-      .catch(() => undefined);
+      .catch(() => setLanguageLoaded(true));
   }, []);
 
   const setLanguage = useCallback((nextLanguage: Language) => {
@@ -100,6 +102,8 @@ export const I18nProvider: React.FC<{children: React.ReactNode}> = ({children}) 
       tNode,
     };
   }, [language, setLanguage, t, tNode, toggleLanguage]);
+
+  if (!languageLoaded) return null;
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 };

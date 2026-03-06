@@ -17,6 +17,7 @@ import {spacing} from '../../theme/spacing';
 import {Button} from '../../components/common/Button';
 import {Input} from '../../components/common/Input';
 import {useAuth} from '../../hooks/useAuth';
+import {useI18n} from '../../i18n/I18nProvider';
 import {loginSchema, type LoginForm} from '../../utils/validators';
 import type {AuthStackParamList} from '../../types/navigation';
 
@@ -24,6 +25,7 @@ type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
 export const LoginScreen: React.FC<Props> = ({navigation}) => {
   const {login, loginPending} = useAuth();
+  const {t} = useI18n();
 
   const {
     control,
@@ -56,9 +58,9 @@ export const LoginScreen: React.FC<Props> = ({navigation}) => {
         <ScrollView
           contentContainerStyle={styles.scroll}
           keyboardShouldPersistTaps="handled">
-          <Text style={styles.title}>Welkom terug</Text>
+          <Text style={styles.title}>{t('Welkom terug')}</Text>
           <Text style={styles.subtitle}>
-            Log in om verder te gaan met Spoedmarktplaats
+            {t('Log in om verder te gaan met Spoedmarktplaats')}
           </Text>
 
           {errors.root?.message && (
@@ -72,7 +74,7 @@ export const LoginScreen: React.FC<Props> = ({navigation}) => {
             name="email"
             render={({field: {onChange, onBlur, value}}) => (
               <Input
-                label="E-mailadres"
+                label={t('E-mailadres')}
                 placeholder="jouw@email.nl"
                 leftIcon="email-outline"
                 keyboardType="email-address"
@@ -91,8 +93,8 @@ export const LoginScreen: React.FC<Props> = ({navigation}) => {
             name="password"
             render={({field: {onChange, onBlur, value}}) => (
               <Input
-                label="Wachtwoord"
-                placeholder="Wachtwoord"
+                label={t('Wachtwoord')}
+                placeholder={t('Wachtwoord')}
                 leftIcon="lock-outline"
                 isPassword
                 autoComplete="password"
@@ -105,7 +107,7 @@ export const LoginScreen: React.FC<Props> = ({navigation}) => {
           />
 
           <Button
-            title="Inloggen"
+            title={t('Inloggen')}
             onPress={handleSubmit(onSubmit)}
             loading={loginPending}
             size="lg"
@@ -114,11 +116,11 @@ export const LoginScreen: React.FC<Props> = ({navigation}) => {
 
           <View style={styles.bottomRow}>
             <Text style={styles.bottomText}>
-              Nog geen account?{' '}
+              {t('Nog geen account?')}{' '}
               <Text
                 style={styles.linkText}
                 onPress={() => navigation.navigate('Signup', {})}>
-                Registreren
+                {t('Registreren')}
               </Text>
             </Text>
           </View>

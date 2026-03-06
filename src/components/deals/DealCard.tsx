@@ -8,6 +8,7 @@ import {typography} from '../../theme/typography';
 import {spacing} from '../../theme/spacing';
 import {formatPrice} from '../../utils/formatters';
 import {relativeTime} from '../../utils/date';
+import {useI18n} from '../../i18n/I18nProvider';
 import type {Deal} from '../../types/models';
 
 interface Props {
@@ -15,16 +16,18 @@ interface Props {
   onPress: (deal: Deal) => void;
 }
 
-const statusConfig: Record<string, {label: string; variant: 'warning' | 'info' | 'success' | 'error' | 'neutral'; icon: ComponentProps<typeof Icon>['name']}> = {
-  ACCEPTED: {label: 'Geaccepteerd', variant: 'info', icon: 'handshake'},
-  IN_PROGRESS: {label: 'In uitvoering', variant: 'warning', icon: 'progress-wrench'},
-  COMPLETED_PENDING_CLIENT_CONFIRM: {label: 'Bevestiging nodig', variant: 'warning', icon: 'check-circle-outline'},
-  COMPLETED_PENDING_REVIEWS: {label: 'Review nodig', variant: 'info', icon: 'star-outline'},
-  CLOSED: {label: 'Afgerond', variant: 'success', icon: 'check-decagram'},
-  DISPUTED: {label: 'Geschil', variant: 'error', icon: 'alert'},
-};
-
 export const DealCard: React.FC<Props> = ({deal, onPress}) => {
+  const {t} = useI18n();
+
+  const statusConfig: Record<string, {label: string; variant: 'warning' | 'info' | 'success' | 'error' | 'neutral'; icon: ComponentProps<typeof Icon>['name']}> = {
+    ACCEPTED: {label: t('Geaccepteerd'), variant: 'info', icon: 'handshake'},
+    IN_PROGRESS: {label: t('In uitvoering'), variant: 'warning', icon: 'progress-wrench'},
+    COMPLETED_PENDING_CLIENT_CONFIRM: {label: t('Bevestiging nodig'), variant: 'warning', icon: 'check-circle-outline'},
+    COMPLETED_PENDING_REVIEWS: {label: t('Review nodig'), variant: 'info', icon: 'star-outline'},
+    CLOSED: {label: t('Afgerond'), variant: 'success', icon: 'check-decagram'},
+    DISPUTED: {label: t('Geschil'), variant: 'error', icon: 'alert'},
+  };
+
   const cfg = statusConfig[deal.status] ?? statusConfig.ACCEPTED;
 
   return (
@@ -55,13 +58,13 @@ export const DealCard: React.FC<Props> = ({deal, onPress}) => {
       {deal.status === 'COMPLETED_PENDING_CLIENT_CONFIRM' && (
         <View style={styles.actionHint}>
           <Icon name="information" size={14} color={colors.warning} />
-          <Text style={styles.actionHintText}>Wacht op bevestiging van opdrachtgever</Text>
+          <Text style={styles.actionHintText}>{t('Wacht op bevestiging van opdrachtgever')}</Text>
         </View>
       )}
       {deal.status === 'COMPLETED_PENDING_REVIEWS' && (
         <View style={styles.actionHint}>
           <Icon name="star" size={14} color={colors.info} />
-          <Text style={styles.actionHintText}>Laat een review achter om af te ronden</Text>
+          <Text style={styles.actionHintText}>{t('Laat een review achter om af te ronden')}</Text>
         </View>
       )}
     </Card>

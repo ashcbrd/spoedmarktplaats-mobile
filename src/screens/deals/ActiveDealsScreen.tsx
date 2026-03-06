@@ -8,18 +8,20 @@ import {colors} from '../../theme/colors';
 import {typography} from '../../theme/typography';
 import {spacing, borderRadius} from '../../theme/spacing';
 import {useMyDeals} from '../../hooks/useDeals';
+import {useI18n} from '../../i18n/I18nProvider';
 import type {Deal} from '../../types/models';
-
-const TABS = [{key: 'active', label: 'Actief'}, {key: 'closed', label: 'Afgerond'}] as const;
 
 export const ActiveDealsScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const {t} = useI18n();
   const [tab, setTab] = useState<'active' | 'closed'>('active');
   const statusFilter = tab === 'closed' ? 'CLOSED' : undefined;
   const {data, isLoading, fetchNextPage, hasNextPage, refetch} = useMyDeals(statusFilter);
   const deals = (data?.pages.flatMap(p => p.data) ?? []).filter(d =>
     tab === 'active' ? d.status !== 'CLOSED' : d.status === 'CLOSED',
   );
+
+  const TABS = [{key: 'active' as const, label: t('Actief')}, {key: 'closed' as const, label: t('Afgerond')}];
 
   const handlePress = (deal: Deal) => {
     navigation.navigate('DealDetail', {dealId: deal.id});
@@ -28,9 +30,9 @@ export const ActiveDealsScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.tabs}>
-        {TABS.map(t => (
-          <TouchableOpacity key={t.key} style={[styles.tab, tab === t.key && styles.tabActive]} onPress={() => setTab(t.key)}>
-            <Text style={[styles.tabText, tab === t.key && styles.tabTextActive]}>{t.label}</Text>
+        {TABS.map(item => (
+          <TouchableOpacity key={item.key} style={[styles.tab, tab === item.key && styles.tabActive]} onPress={() => setTab(item.key)}>
+            <Text style={[styles.tabText, tab === item.key && styles.tabTextActive]}>{item.label}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -43,7 +45,7 @@ export const ActiveDealsScreen: React.FC = () => {
           onEndReached={() => hasNextPage && fetchNextPage()}
           refreshing={false}
           onRefresh={refetch}
-          ListEmptyComponent={<EmptyState icon="handshake-outline" title="Geen deals" message={tab === 'active' ? 'Je hebt nog geen actieve deals' : 'Je hebt nog geen afgeronde deals'} />}
+          ListEmptyComponent={<EmptyState icon="handshake-outline" title={t('Geen deals')} message={tab === 'active' ? t('Je hebt nog geen actieve deals') : t('Je hebt nog geen afgeronde deals')} />}
         />
       )}
     </View>

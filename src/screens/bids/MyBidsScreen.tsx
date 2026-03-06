@@ -11,14 +11,8 @@ import {spacing, borderRadius} from '../../theme/spacing';
 import {useMyBids} from '../../hooks/useBids';
 import {formatPrice} from '../../utils/formatters';
 import {relativeTime} from '../../utils/date';
+import {useI18n} from '../../i18n/I18nProvider';
 import type {Bid} from '../../types/models';
-
-const TABS = [
-  {key: undefined, label: 'Alle'},
-  {key: 'PENDING', label: 'In afwachting'},
-  {key: 'ACCEPTED', label: 'Geaccepteerd'},
-  {key: 'REJECTED', label: 'Afgewezen'},
-] as const;
 
 const statusVariant: Record<string, 'warning' | 'success' | 'error' | 'neutral'> = {
   PENDING: 'warning', ACCEPTED: 'success', REJECTED: 'error', WITHDRAWN: 'neutral', EXPIRED: 'neutral',
@@ -26,7 +20,15 @@ const statusVariant: Record<string, 'warning' | 'success' | 'error' | 'neutral'>
 
 export const MyBidsScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const {t} = useI18n();
   const [tab, setTab] = useState<string | undefined>(undefined);
+
+  const TABS = [
+    {key: undefined as string | undefined, label: t('Alle')},
+    {key: 'PENDING', label: t('In afwachting')},
+    {key: 'ACCEPTED', label: t('Geaccepteerd')},
+    {key: 'REJECTED', label: t('Afgewezen')},
+  ];
   const {data, isLoading, fetchNextPage, hasNextPage, refetch} = useMyBids(tab);
   const bids = data?.pages.flatMap(p => p.data) ?? [];
 
@@ -45,7 +47,7 @@ export const MyBidsScreen: React.FC = () => {
         <Badge label={item.status} variant={statusVariant[item.status] ?? 'neutral'} small />
       </View>
       <View style={styles.bidDetails}>
-        <Text style={styles.bidPrice}>{formatPrice(item.priceAmount)}{item.priceType === 'hourly' ? '/uur' : ''}</Text>
+        <Text style={styles.bidPrice}>{formatPrice(item.priceAmount)}{item.priceType === 'hourly' ? t('/uur') : ''}</Text>
         <Text style={styles.bidDate}>{relativeTime(item.createdAt)}</Text>
       </View>
     </Card>
@@ -69,7 +71,7 @@ export const MyBidsScreen: React.FC = () => {
           onEndReached={() => hasNextPage && fetchNextPage()}
           refreshing={false}
           onRefresh={refetch}
-          ListEmptyComponent={<EmptyState icon="hand-back-right-outline" title="Geen biedingen" message="Je hebt nog geen biedingen geplaatst" />}
+          ListEmptyComponent={<EmptyState icon="hand-back-right-outline" title={t('Geen biedingen')} message={t('Je hebt nog geen biedingen geplaatst')} />}
         />
       )}
     </View>

@@ -46,6 +46,10 @@ export const useAuth = () => {
       analyticsService.track('auth_signup_success', {
         role: data.user.role,
       });
+      if (data.user.phone) {
+        store.setPendingOnboarding(true);
+        store.setPendingOtpVerification(true);
+      }
     },
     onError: e => {
       const parsed = parseApiError(e);
