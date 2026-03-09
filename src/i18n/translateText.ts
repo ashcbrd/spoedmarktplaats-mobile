@@ -457,6 +457,7 @@ const PHRASES: PhrasePair[] = [
   {nl: 'Je bedrijfsgegevens zijn bijgewerkt.', en: 'Your company details have been updated.'},
   {nl: 'Opslaan mislukt. Probeer het opnieuw.', en: 'Save failed. Please try again.'},
   {nl: 'Bedrijfsnaam is verplicht.', en: 'Company name is required.'},
+  {nl: 'Je hebt al een bod geplaatst', en: 'You have already placed a bid'},
 ];
 
 const EXACT_NL_TO_EN = new Map(PHRASES.map(pair => [pair.nl, pair.en]));

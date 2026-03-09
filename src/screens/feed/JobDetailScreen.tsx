@@ -14,6 +14,8 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
 import { useJobDetail } from '../../hooks/useJobs';
 import { useAuth } from '../../hooks/useAuth';
+import { useBidsForJob } from '../../hooks/useBids';
+import { useI18n } from '../../i18n/I18nProvider';
 import { UrgencyTimer } from '../../components/jobs/UrgencyTimer';
 import { Badge } from '../../components/common/Badge';
 import { Button } from '../../components/common/Button';
@@ -41,12 +43,15 @@ export const JobDetailScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
   const { jobId } = route.params;
   const { user } = useAuth();
+  const { t } = useI18n();
 
   const { data: job, isLoading } = useJobDetail(jobId);
+  const { data: bids } = useBidsForJob(jobId);
 
   const expired = job ? isExpired(job.bidWindowEnd) : false;
   const isOwner = job?.clientUserId === user?.id;
   const isProvider = user?.role === 'provider';
+  const alreadyBid = bids?.some((b: any) => b.providerUserId === user?.id);
   const subcat = job
     ? SUBCATEGORIES.find(s => s.key === job.subcategory)
     : undefined;
@@ -270,7 +275,7 @@ export const JobDetailScreen: React.FC = () => {
             icon={<Icon name="cog" size={20} color={colors.white} />}
             style={styles.ctaButton}
           />
-        ) : isProvider ? (
+        ) : isProvider && !alreadyBid ? (
           <Button
             title="Bod plaatsen"
             onPress={handlePlaceBid}
@@ -281,6 +286,11 @@ export const JobDetailScreen: React.FC = () => {
             }
             style={styles.ctaButton}
           />
+        ) : isProvider && alreadyBid ? (
+          <View style={styles.bidPlacedRow}>
+            <Icon name="check-circle" size={20} color={colors.success} />
+            <Text style={styles.bidPlacedText}>{t('Je hebt al een bod geplaatst')}</Text>
+          </View>
         ) : null}
       </View>
     </SafeAreaView>
@@ -433,5 +443,15 @@ const styles = StyleSheet.create({
   },
   ctaButton: {
     width: '100%',
+  },
+  bidPlacedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+  },
+  bidPlacedText: {
+    ...typography.bodyBold,
+    color: colors.success,
   },
 });
