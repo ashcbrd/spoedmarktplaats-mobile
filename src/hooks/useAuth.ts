@@ -6,6 +6,7 @@ import { creditsApi } from '../api/endpoints/credits';
 import { parseApiError, showErrorAlert } from '../utils/errorHandling';
 import { useI18n } from '../i18n/I18nProvider';
 import { analyticsService } from '../services/analytics.service';
+import { clearDraftCheckpoint } from '../features/jobs/jobDraftCheckpoint';
 
 export const useAuth = () => {
   const store = useAuthStore();
@@ -93,7 +94,9 @@ export const useAuth = () => {
   });
 
   const logout = () => {
+    const userId = store.user?.id;
     authApi.logout().catch(() => {});
+    if (userId) clearDraftCheckpoint(userId).catch(() => {});
     store.clearAuth();
     useCreditsStore.getState().setBalance(0);
     queryClient.clear();

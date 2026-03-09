@@ -9,6 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useAuthStore } from '../../store/authStore';
 import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
@@ -45,6 +46,7 @@ const sanitizeNumberInput = (value: string): string => {
 
 export const CreateJobScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const userId = useAuthStore(state => state.user?.id ?? '');
   const createJob = useCreateJob();
   const updateDraft = useUpdateDraftJob();
   const publishJob = usePublishJob();
@@ -74,6 +76,7 @@ export const CreateJobScreen: React.FC = () => {
   const [publishing, setPublishing] = useState(false);
   const [loadedCheckpoint, setLoadedCheckpoint] = useState(false);
   const [draftId, setDraftId] = useState<string | null>(null);
+  const [stepAttempted, setStepAttempted] = useState(false);
 
   const draftSnapshot = useMemo(
     () => ({
@@ -107,7 +110,7 @@ export const CreateJobScreen: React.FC = () => {
   useEffect(() => {
     let mounted = true;
     const restore = async () => {
-      const checkpoint = await loadDraftCheckpoint();
+      const checkpoint = await loadDraftCheckpoint(userId);
       if (!mounted || !checkpoint?.draft) {
         setLoadedCheckpoint(true);
         return;
@@ -137,10 +140,14 @@ export const CreateJobScreen: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    setStepAttempted(false);
+  }, [step]);
+
+  useEffect(() => {
     if (!loadedCheckpoint) return;
 
     const timer = setTimeout(() => {
-      saveDraftCheckpoint(draftSnapshot, draftId).catch(() => {});
+      saveDraftCheckpoint(draftSnapshot, draftId, userId).catch(() => {});
     }, 700);
 
     return () => clearTimeout(timer);
@@ -216,14 +223,37 @@ export const CreateJobScreen: React.FC = () => {
         : await createJob.mutateAsync(draftPayload);
 
       setDraftId(draft.id);
-      await saveDraftCheckpoint(draftSnapshot, draft.id);
+      await saveDraftCheckpoint(draftSnapshot, draft.id, userId);
 
       await publishJob.mutateAsync(draft.id);
-      await clearDraftCheckpoint();
+      await clearDraftCheckpoint(userId);
 
       analyticsService.track('draft_publish_success', {
         jobId: draft.id,
       });
+
+      // Reset all form state and stop checkpoint debounce from re-saving
+      setLoadedCheckpoint(false);
+      setStep(0);
+      setSubcategory('');
+      setUrgency('');
+      setPostcode('');
+      setCity('');
+      setTitle('');
+      setDescription('');
+      setPhotos([]);
+      setBudgetType('');
+      setBudgetAmount('');
+      setBudgetMin('');
+      setBudgetMax('');
+      setOwnTools(false);
+      setOwnTransport(false);
+      setBouwpas(false);
+      setVca(false);
+      setAccessNotes('');
+      setWorkersNeeded(1);
+      setVisibility('public');
+      setDraftId(null);
 
       Alert.alert('Gelukt!', 'Je opdracht is gepubliceerd.', [
         { text: 'OK', onPress: () => navigation.goBack() },
@@ -310,7 +340,7 @@ export const CreateJobScreen: React.FC = () => {
         {step === 0 && (
           <>
             <Text style={styles.stepTitle}>Welk type werk?</Text>
-            {validationErrors.subcategory ? (
+            {stepAttempted && validationErrors.subcategory ? (
               <Text style={styles.validationError}>{validationErrors.subcategory}</Text>
             ) : null}
             <View style={styles.grid}>
@@ -348,7 +378,7 @@ export const CreateJobScreen: React.FC = () => {
         {step === 1 && (
           <>
             <Text style={styles.stepTitle}>Hoe dringend?</Text>
-            {validationErrors.urgency ? (
+            {stepAttempted && validationErrors.urgency ? (
               <Text style={styles.validationError}>{validationErrors.urgency}</Text>
             ) : null}
             {URGENCY_OPTIONS.map(u => (
@@ -391,7 +421,7 @@ export const CreateJobScreen: React.FC = () => {
               value={postcode}
               onChangeText={setPostcode}
               leftIcon="map-marker"
-              error={validationErrors.postcode}
+              error={stepAttempted ? validationErrors.postcode : undefined}
             />
             <Input
               label="Stad"
@@ -399,7 +429,7 @@ export const CreateJobScreen: React.FC = () => {
               value={city}
               onChangeText={setCity}
               leftIcon="city"
-              error={validationErrors.city}
+              error={stepAttempted ? validationErrors.city : undefined}
             />
           </>
         )}
@@ -416,7 +446,7 @@ export const CreateJobScreen: React.FC = () => {
               minChars={5}
               maxChars={120}
               maxLength={120}
-              error={validationErrors.title}
+              error={stepAttempted ? validationErrors.title : undefined}
             />
             <Input
               label="Omschrijving"
@@ -429,7 +459,7 @@ export const CreateJobScreen: React.FC = () => {
               numberOfLines={5}
               maxLength={DESCRIPTION_MAX_CHARS}
               style={styles.descriptionInput}
-              error={validationErrors.description}
+              error={stepAttempted ? validationErrors.description : undefined}
             />
           </>
         )}
@@ -453,7 +483,7 @@ export const CreateJobScreen: React.FC = () => {
         {step === 5 && (
           <>
             <Text style={styles.stepTitle}>Budget</Text>
-            {validationErrors.budgetType ? (
+            {stepAttempted && validationErrors.budgetType ? (
               <Text style={styles.validationError}>{validationErrors.budgetType}</Text>
             ) : null}
             <View style={styles.grid}>
@@ -486,7 +516,7 @@ export const CreateJobScreen: React.FC = () => {
                   setBudgetAmount(sanitizeNumberInput(value))
                 }
                 keyboardType="numeric"
-                error={validationErrors.budgetAmount}
+                error={stepAttempted ? validationErrors.budgetAmount : undefined}
               />
             )}
             {budgetType === 'hourly' && (
@@ -498,7 +528,7 @@ export const CreateJobScreen: React.FC = () => {
                   setBudgetAmount(sanitizeNumberInput(value))
                 }
                 keyboardType="numeric"
-                error={validationErrors.budgetAmount}
+                error={stepAttempted ? validationErrors.budgetAmount : undefined}
               />
             )}
             {budgetType === 'range' && (
@@ -511,7 +541,7 @@ export const CreateJobScreen: React.FC = () => {
                       setBudgetMin(sanitizeNumberInput(value))
                     }
                     keyboardType="numeric"
-                    error={validationErrors.budgetMin}
+                    error={stepAttempted ? validationErrors.budgetMin : undefined}
                   />
                 <Input
                   label="Maximum (€)"
@@ -521,7 +551,7 @@ export const CreateJobScreen: React.FC = () => {
                       setBudgetMax(sanitizeNumberInput(value))
                     }
                     keyboardType="numeric"
-                    error={validationErrors.budgetMax}
+                    error={stepAttempted ? validationErrors.budgetMax : undefined}
                   />
               </>
             )}
@@ -696,8 +726,13 @@ export const CreateJobScreen: React.FC = () => {
         {step < TOTAL_STEPS ? (
           <Button
             title="Volgende"
-            onPress={() => setStep(step + 1)}
-            disabled={!canNext()}
+            onPress={() => {
+              if (!canNext()) {
+                setStepAttempted(true);
+              } else {
+                setStep(step + 1);
+              }
+            }}
           />
         ) : (
           <Button

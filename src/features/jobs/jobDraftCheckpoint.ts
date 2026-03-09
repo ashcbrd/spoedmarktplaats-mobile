@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { JobDraftForm } from './jobDraftSchema';
 
-const KEY = 'job-draft-checkpoint-v1';
+const getKey = (userId: string) => `job-draft-checkpoint-v1:${userId}`;
 
 type DraftCheckpoint = {
   draft: JobDraftForm;
@@ -10,17 +10,18 @@ type DraftCheckpoint = {
 
 export const saveDraftCheckpoint = async (
   draft: JobDraftForm,
-  draftId?: string | null,
+  draftId: string | null | undefined,
+  userId: string,
 ): Promise<void> => {
-  await AsyncStorage.setItem(KEY, JSON.stringify({
+  await AsyncStorage.setItem(getKey(userId), JSON.stringify({
     savedAt: new Date().toISOString(),
     draft,
     draftId,
   }));
 };
 
-export const loadDraftCheckpoint = async (): Promise<DraftCheckpoint | null> => {
-  const raw = await AsyncStorage.getItem(KEY);
+export const loadDraftCheckpoint = async (userId: string): Promise<DraftCheckpoint | null> => {
+  const raw = await AsyncStorage.getItem(getKey(userId));
   if (!raw) return null;
 
   try {
@@ -32,6 +33,6 @@ export const loadDraftCheckpoint = async (): Promise<DraftCheckpoint | null> => 
   }
 };
 
-export const clearDraftCheckpoint = async (): Promise<void> => {
-  await AsyncStorage.removeItem(KEY);
+export const clearDraftCheckpoint = async (userId: string): Promise<void> => {
+  await AsyncStorage.removeItem(getKey(userId));
 };
