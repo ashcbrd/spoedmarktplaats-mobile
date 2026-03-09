@@ -10,6 +10,7 @@ interface AuthState {
   user: User | null;
   lastActivityAt: number | null;
   pendingOtpVerification: boolean;
+  pendingOnboarding: boolean;
 
   setTokens: (token: string, refreshToken: string) => void;
   setUser: (user: User) => void;
@@ -18,6 +19,7 @@ interface AuthState {
   hasSessionExpired: (maxIdleMs: number) => boolean;
   clearAuth: () => void;
   setPendingOtpVerification: (val: boolean) => void;
+  setPendingOnboarding: (val: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -29,6 +31,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       lastActivityAt: null,
       pendingOtpVerification: false,
+      pendingOnboarding: false,
 
       setTokens: (token, refreshToken) =>
         set({
@@ -64,9 +67,11 @@ export const useAuthStore = create<AuthState>()(
           user: null,
           lastActivityAt: null,
           pendingOtpVerification: false,
+          pendingOnboarding: false,
         }),
 
       setPendingOtpVerification: val => set({pendingOtpVerification: val}),
+      setPendingOnboarding: val => set({pendingOnboarding: val}),
     }),
     {
       name: 'auth-storage',

@@ -26,7 +26,9 @@ export const PhoneVerificationScreen: React.FC = () => {
   const {user, sendOtp, verifyPhone} = useAuth();
   const pendingOtpVerification = useAuthStore(s => s.pendingOtpVerification);
   const setPendingOtpVerification = useAuthStore(s => s.setPendingOtpVerification);
-  const {language} = useI18n();
+  const pendingOnboarding = useAuthStore(s => s.pendingOnboarding);
+  const setPendingOnboarding = useAuthStore(s => s.setPendingOnboarding);
+  const {language, t} = useI18n();
 
   const [code, setCode] = useState<string[]>(Array(CODE_LENGTH).fill(''));
   const [loading, setLoading] = useState(false);
@@ -94,7 +96,7 @@ export const PhoneVerificationScreen: React.FC = () => {
   const handleVerify = async () => {
     const fullCode = code.join('');
     if (fullCode.length !== CODE_LENGTH) {
-      setError('Voer de volledige 6-cijferige code in');
+      setError(t('Voer de volledige 6-cijferige code in'));
       return;
     }
 
@@ -102,17 +104,8 @@ export const PhoneVerificationScreen: React.FC = () => {
     setError('');
     try {
       await verifyPhone(fullCode);
-      if (pendingOtpVerification) {
-        // Login context — clear flag, RootNavigator transitions to Main automatically
-        setPendingOtpVerification(false);
-      } else {
-        // Signup context — navigate to role-specific onboarding
-        if (user?.role === 'provider') {
-          navigation.replace('ProviderOnboarding');
-        } else {
-          navigation.replace('ClientOnboarding');
-        }
-      }
+      // Clear OTP flag — RootNavigator will transition to onboarding or Main automatically
+      setPendingOtpVerification(false);
     } catch (err: any) {
       const message =
         err?.response?.data?.message ?? 'Ongeldige code. Probeer het opnieuw.';
@@ -131,7 +124,7 @@ export const PhoneVerificationScreen: React.FC = () => {
       setError('');
       inputRefs.current[0]?.focus();
     } catch {
-      setError('Code versturen mislukt. Probeer het opnieuw.');
+      setError(t('Code versturen mislukt. Probeer het opnieuw.'));
     }
   };
 
@@ -141,11 +134,11 @@ export const PhoneVerificationScreen: React.FC = () => {
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={styles.content}>
-          <Text style={styles.title}>Verificatie</Text>
+          <Text style={styles.title}>{t('Verificatie')}</Text>
           <Text style={styles.subtitle}>
-            Voer de 6-cijferige code in die we naar{' '}
-            <Text style={styles.phoneHighlight}>{user?.phone ?? 'je telefoon'}</Text>{' '}
-            hebben gestuurd.
+            {t('Voer de 6-cijferige code in die we naar')}{' '}
+            <Text style={styles.phoneHighlight}>{user?.phone ?? t('je telefoon')}</Text>{' '}
+            {t('hebben gestuurd.')}
           </Text>
 
           {/* OTP boxes */}
@@ -176,9 +169,7 @@ export const PhoneVerificationScreen: React.FC = () => {
           </View>
 
           <Text style={styles.counterHelper}>
-            {language === 'en'
-              ? `Exactly ${CODE_LENGTH} digits`
-              : `Precies ${CODE_LENGTH} cijfers`}
+            {language === 'en' ? `Exactly ${CODE_LENGTH} digits` : `Precies ${CODE_LENGTH} cijfers`}
           </Text>
           <Text
             style={[
@@ -195,7 +186,7 @@ export const PhoneVerificationScreen: React.FC = () => {
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
           <Button
-            title="Verifieer"
+            title={t('Verifieer')}
             onPress={handleVerify}
             loading={loading}
             size="lg"
@@ -213,8 +204,8 @@ export const PhoneVerificationScreen: React.FC = () => {
                 countdown > 0 && styles.resendTextDisabled,
               ]}>
               {countdown > 0
-                ? `Code opnieuw versturen (${countdown}s)`
-                : 'Code opnieuw versturen'}
+                ? t(`Code opnieuw versturen (${countdown}s)`)
+                : t('Code opnieuw versturen')}
             </Text>
           </TouchableOpacity>
         </View>

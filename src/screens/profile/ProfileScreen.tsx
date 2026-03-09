@@ -16,6 +16,7 @@ import { typography } from '../../theme/typography';
 import { spacing } from '../../theme/spacing';
 import { useAuth } from '../../hooks/useAuth';
 import { useCreditsStore } from '../../store/creditsStore';
+import { useI18n } from '../../i18n/I18nProvider';
 
 interface MenuItem {
   icon: ComponentProps<typeof Icon>['name'];
@@ -28,6 +29,7 @@ export const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const { user, logout } = useAuth();
   const balance = useCreditsStore(s => s.balance);
+  const { t } = useI18n();
 
   const isProvider = user?.role === 'provider';
   const isB2B = user?.clientType === 'b2b';
@@ -35,24 +37,30 @@ export const ProfileScreen: React.FC = () => {
   const menuItems: MenuItem[] = [
     {
       icon: 'shield-check',
-      label: 'Verificatie',
+      label: t('Verificatie'),
       screen: 'VerificationCenter',
     },
-    { icon: 'credit-card', label: `Credits (${balance})`, screen: 'Credits' },
-    { icon: 'bell', label: 'Meldingen', screen: 'Notifications' },
+    { icon: 'credit-card', label: t(`Credits (${balance})`), screen: 'Credits' },
+    { icon: 'bell', label: t('Meldingen'), screen: 'Notifications' },
     {
       icon: 'tune',
-      label: 'Voorkeuren',
+      label: t('Voorkeuren'),
       screen: 'Preferences',
       show: isProvider,
     },
     {
+      icon: 'domain',
+      label: t('Bedrijfsprofiel'),
+      screen: 'CompanyProfile',
+      show: isB2B,
+    },
+    {
       icon: 'account-group',
-      label: 'Privaat Pool',
+      label: t('Privaat Pool'),
       screen: 'PrivatePool',
       show: isB2B,
     },
-    { icon: 'cog', label: 'Instellingen', screen: 'Settings' },
+    { icon: 'cog', label: t('Instellingen'), screen: 'Settings' },
   ];
 
   return (
@@ -63,9 +71,10 @@ export const ProfileScreen: React.FC = () => {
         <Text style={styles.name}>{user?.name}</Text>
         <Text style={styles.email}>{user?.email}</Text>
         <Badge
-          label={isProvider ? 'Vakman' : isB2B ? 'Zakelijk' : 'Particulier'}
+          label={isProvider ? t('Vakman') : isB2B ? t('Zakelijk (B2B)') : t('Particulier (B2C)')}
           variant={isProvider ? 'primary' : 'info'}
           icon={isProvider ? 'wrench' : 'account'}
+          style={{alignSelf: 'center'}}
         />
       </View>
 
@@ -92,7 +101,7 @@ export const ProfileScreen: React.FC = () => {
 
       {/* Logout */}
       <Button
-        title="Uitloggen"
+        title={t('Uitloggen')}
         onPress={logout}
         variant="danger"
         style={styles.logoutBtn}

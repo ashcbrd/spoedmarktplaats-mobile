@@ -5,15 +5,8 @@ import {colors} from '../../theme/colors';
 import {typography} from '../../theme/typography';
 import {spacing} from '../../theme/spacing';
 import {formatDateTime} from '../../utils/date';
+import {useI18n} from '../../i18n/I18nProvider';
 import type {DealStatus} from '../../types/models';
-
-const STEPS: {key: DealStatus; label: string; icon: ComponentProps<typeof Icon>['name']}[] = [
-  {key: 'ACCEPTED', label: 'Geaccepteerd', icon: 'handshake'},
-  {key: 'IN_PROGRESS', label: 'In uitvoering', icon: 'progress-wrench'},
-  {key: 'COMPLETED_PENDING_CLIENT_CONFIRM', label: 'Voltooid', icon: 'check-circle-outline'},
-  {key: 'COMPLETED_PENDING_REVIEWS', label: 'Reviews', icon: 'star-outline'},
-  {key: 'CLOSED', label: 'Afgerond', icon: 'check-decagram'},
-];
 
 const ORDER: Record<DealStatus, number> = {
   ACCEPTED: 0,
@@ -36,7 +29,16 @@ interface Props {
 }
 
 export const DealTimeline: React.FC<Props> = ({status, timestamps}) => {
+  const {t} = useI18n();
   const currentIdx = ORDER[status] ?? 0;
+
+  const STEPS: {key: DealStatus; label: string; icon: ComponentProps<typeof Icon>['name']}[] = [
+    {key: 'ACCEPTED', label: t('Geaccepteerd'), icon: 'handshake'},
+    {key: 'IN_PROGRESS', label: t('In uitvoering'), icon: 'progress-wrench'},
+    {key: 'COMPLETED_PENDING_CLIENT_CONFIRM', label: t('Voltooid'), icon: 'check-circle-outline'},
+    {key: 'COMPLETED_PENDING_REVIEWS', label: t('Reviews'), icon: 'star-outline'},
+    {key: 'CLOSED', label: t('Afgerond'), icon: 'check-decagram'},
+  ];
   const tsArray = [
     timestamps?.createdAt,
     timestamps?.startedAt,
@@ -49,7 +51,7 @@ export const DealTimeline: React.FC<Props> = ({status, timestamps}) => {
     return (
       <View style={styles.disputeContainer}>
         <Icon name="alert-circle" size={24} color={colors.error} />
-        <Text style={styles.disputeText}>Geschil - neem contact op met support</Text>
+        <Text style={styles.disputeText}>{t('Geschil - neem contact op met support')}</Text>
       </View>
     );
   }

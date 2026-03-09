@@ -1,40 +1,44 @@
 import {z} from 'zod';
+import {getRuntimeLanguage} from '../i18n/runtimeLanguage';
+import {translateText} from '../i18n/translateText';
+
+const t = (nl: string) => translateText(nl, getRuntimeLanguage());
 
 // ── Auth schemas ────────────────────────────
 export const loginSchema = z.object({
-  email: z.string().email('Ongeldig e-mailadres'),
-  password: z.string().min(8, 'Minimaal 8 tekens'),
+  email: z.string().email(() => t('Ongeldig e-mailadres')),
+  password: z.string().min(1, () => t('Vul je wachtwoord in')),
 });
 
 export const signupSchema = z
   .object({
-    name: z.string().min(2, 'Minimaal 2 tekens'),
-    email: z.string().email('Ongeldig e-mailadres'),
+    name: z.string().min(2, () => t('Minimaal 2 tekens')),
+    email: z.string().email(() => t('Ongeldig e-mailadres')),
     phone: z
       .string()
-      .regex(/^06\d{8}$/, 'Voer een geldig Nederlands mobiel nummer in (06XXXXXXXX)'),
-    password: z.string().min(8, 'Minimaal 8 tekens'),
+      .regex(/^06\d{8}$/, () => t('Voer een geldig Nederlands mobiel nummer in (06XXXXXXXX)')),
+    password: z.string().min(8, () => t('Minimaal 8 tekens')),
     confirmPassword: z.string(),
   })
   .refine(d => d.password === d.confirmPassword, {
-    message: 'Wachtwoorden komen niet overeen',
+    message: t('Wachtwoorden komen niet overeen'),
     path: ['confirmPassword'],
   });
 
 export const phoneOtpSchema = z.object({
-  code: z.string().length(6, 'Voer 6-cijferige code in'),
+  code: z.string().length(6, () => t('Voer 6-cijferige code in')),
 });
 
 // ── Job schemas ─────────────────────────────
 export const createJobSchema = z.object({
-  subcategory: z.string().min(1, 'Kies een categorie'),
+  subcategory: z.string().min(1, () => t('Kies een categorie')),
   urgency: z.enum(['ASAP', 'TODAY', 'SCHEDULED', 'FLEXIBLE']),
-  title: z.string().min(5, 'Minimaal 5 tekens').max(120, 'Maximaal 120 tekens'),
-  description: z.string().min(20, 'Minimaal 20 tekens'),
+  title: z.string().min(5, () => t('Minimaal 5 tekens')).max(120, () => t('Maximaal 120 tekens')),
+  description: z.string().min(20, () => t('Minimaal 20 tekens')),
   postcode: z
     .string()
-    .regex(/^\d{4}\s?[A-Za-z]{2}$/, 'Ongeldige postcode (bijv. 1012 AB)'),
-  city: z.string().min(2, 'Vul stad in'),
+    .regex(/^\d{4}\s?[A-Za-z]{2}$/, () => t('Ongeldige postcode (bijv. 1012 AB)')),
+  city: z.string().min(2, () => t('Vul stad in')),
   budgetType: z.enum(['fixed', 'hourly', 'range', 'let_bid']),
   budgetAmount: z.number().positive().optional(),
   budgetMin: z.number().positive().optional(),
@@ -47,8 +51,8 @@ export const createJobSchema = z.object({
 // ── Bid schema ──────────────────────────────
 export const placeBidSchema = z.object({
   priceType: z.enum(['fixed', 'hourly']),
-  priceAmount: z.number().positive('Voer een geldig bedrag in'),
-  eta: z.string().min(1, 'Kies een datum'),
+  priceAmount: z.number().positive(() => t('Voer een geldig bedrag in')),
+  eta: z.string().min(1, () => t('Kies een datum')),
   crewSize: z.number().int().min(1).default(1),
   message: z.string().max(500).optional(),
 });
@@ -64,7 +68,7 @@ export const reviewSchema = z.object({
 export const kvkSchema = z.object({
   kvkNumber: z
     .string()
-    .regex(/^\d{8}$/, 'KvK-nummer moet 8 cijfers zijn'),
+    .regex(/^\d{8}$/, () => t('KvK-nummer moet 8 cijfers zijn')),
 });
 
 // ── IBAN ────────────────────────────────────
@@ -73,15 +77,15 @@ export const ibanSchema = z.object({
     .string()
     .regex(
       /^[A-Z]{2}\d{2}[A-Z]{4}\d{10}$/,
-      'Ongeldig IBAN (bijv. NL91ABNA0417164300)',
+      () => t('Ongeldig IBAN (bijv. NL91ABNA0417164300)'),
     ),
 });
 
 // ── Pool member ─────────────────────────────
 export const poolMemberSchema = z.object({
-  firstName: z.string().min(1, 'Vul voornaam in'),
-  lastName: z.string().min(1, 'Vul achternaam in'),
-  email: z.string().email('Ongeldig e-mailadres'),
+  firstName: z.string().min(1, () => t('Vul voornaam in')),
+  lastName: z.string().min(1, () => t('Vul achternaam in')),
+  email: z.string().email(() => t('Ongeldig e-mailadres')),
   phone: z.string().optional(),
   subcategory: z.string().optional(),
   postcode: z.string().optional(),

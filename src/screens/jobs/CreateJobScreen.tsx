@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -22,10 +22,18 @@ import {
   URGENCY_OPTIONS,
   BUDGET_TYPES,
 } from '../../config/constants';
-import { useCreateJob, usePublishJob } from '../../hooks/useJobs';
+import { useCreateJob, usePublishJob, useUpdateDraftJob } from '../../hooks/useJobs';
 import { useCredits } from '../../hooks/useCredits';
 import { formatBudget } from '../../utils/formatters';
+import { parseApiError } from '../../utils/errorHandling';
 import type { Asset } from '../../services/media.service';
+import { analyticsService } from '../../services/analytics.service';
+import {
+  clearDraftCheckpoint,
+  loadDraftCheckpoint,
+  saveDraftCheckpoint,
+} from '../../features/jobs/jobDraftCheckpoint';
+import { validateJobDraft } from '../../features/jobs/jobDraftSchema';
 
 const TOTAL_STEPS = 8;
 const DESCRIPTION_MIN_CHARS = 20;
@@ -38,6 +46,7 @@ const sanitizeNumberInput = (value: string): string => {
 export const CreateJobScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const createJob = useCreateJob();
+  const updateDraft = useUpdateDraftJob();
   const publishJob = usePublishJob();
   const { checkAndConsume } = useCredits();
 
@@ -63,25 +72,94 @@ export const CreateJobScreen: React.FC = () => {
     'public',
   );
   const [publishing, setPublishing] = useState(false);
+  const [loadedCheckpoint, setLoadedCheckpoint] = useState(false);
+  const [draftId, setDraftId] = useState<string | null>(null);
 
-  const canNext = useCallback((): boolean => {
+  const draftSnapshot = useMemo(
+    () => ({
+      subcategory,
+      urgency,
+      postcode,
+      city,
+      title,
+      description,
+      budgetType,
+      budgetAmount,
+      budgetMin,
+      budgetMax,
+    }),
+    [
+      subcategory,
+      urgency,
+      postcode,
+      city,
+      title,
+      description,
+      budgetType,
+      budgetAmount,
+      budgetMin,
+      budgetMax,
+    ],
+  );
+
+  const validationErrors = useMemo(() => validateJobDraft(draftSnapshot), [draftSnapshot]);
+
+  useEffect(() => {
+    let mounted = true;
+    const restore = async () => {
+      const checkpoint = await loadDraftCheckpoint();
+      if (!mounted || !checkpoint?.draft) {
+        setLoadedCheckpoint(true);
+        return;
+      }
+
+      setSubcategory(checkpoint.draft.subcategory ?? '');
+      setUrgency(checkpoint.draft.urgency ?? '');
+      setPostcode(checkpoint.draft.postcode ?? '');
+      setCity(checkpoint.draft.city ?? '');
+      setTitle(checkpoint.draft.title ?? '');
+      setDescription(checkpoint.draft.description ?? '');
+      setBudgetType(checkpoint.draft.budgetType ?? '');
+      setBudgetAmount(checkpoint.draft.budgetAmount ?? '');
+      setBudgetMin(checkpoint.draft.budgetMin ?? '');
+      setBudgetMax(checkpoint.draft.budgetMax ?? '');
+      setDraftId(checkpoint.draftId ?? null);
+      setLoadedCheckpoint(true);
+    };
+
+    restore().catch(() => {
+      setLoadedCheckpoint(true);
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!loadedCheckpoint) return;
+
+    const timer = setTimeout(() => {
+      saveDraftCheckpoint(draftSnapshot, draftId).catch(() => {});
+    }, 700);
+
+    return () => clearTimeout(timer);
+  }, [draftSnapshot, draftId, loadedCheckpoint]);
+
+  const canNext = (): boolean => {
     switch (step) {
       case 0:
-        return !!subcategory;
+        return !validationErrors.subcategory;
       case 1:
-        return !!urgency;
+        return !validationErrors.urgency;
       case 2:
-        return postcode.length >= 4 && city.length >= 2;
+        return !validationErrors.postcode && !validationErrors.city;
       case 3:
-        return (
-          title.length >= 5 &&
-          description.length >= DESCRIPTION_MIN_CHARS &&
-          description.length <= DESCRIPTION_MAX_CHARS
-        );
+        return !validationErrors.title && !validationErrors.description;
       case 4:
         return true; // photos optional
       case 5:
-        return !!budgetType;
+        return !validationErrors.budgetType && !validationErrors.budgetAmount && !validationErrors.budgetMin && !validationErrors.budgetMax;
       case 6:
         return true; // requirements optional
       case 7:
@@ -89,23 +167,28 @@ export const CreateJobScreen: React.FC = () => {
       default:
         return false;
     }
-  }, [
-    step,
-    subcategory,
-    urgency,
-    postcode,
-    city,
-    title,
-    description,
-    budgetType,
-  ]);
+  };
 
   const handlePublish = async () => {
+    const blockingErrors = validateJobDraft(draftSnapshot);
+    if (Object.keys(blockingErrors).length > 0) {
+      Alert.alert('Controleer je invoer', 'Vul alle verplichte velden correct in voordat je publiceert.');
+      return;
+    }
+
     const ok = await checkAndConsume(1, 'een opdracht te publiceren');
     if (!ok) return;
+
+    analyticsService.track('draft_publish_attempt', {
+      hasDraftId: Boolean(draftId),
+      visibility,
+      budgetType,
+      urgency,
+    });
+
     setPublishing(true);
     try {
-      const job = await createJob.mutateAsync({
+      const draftPayload = {
         subcategory,
         title,
         description,
@@ -126,19 +209,86 @@ export const CreateJobScreen: React.FC = () => {
         workersNeeded,
         visibility,
         attachments: [],
+      };
+
+      const draft = draftId
+        ? await updateDraft.mutateAsync({ jobId: draftId, body: draftPayload })
+        : await createJob.mutateAsync(draftPayload);
+
+      setDraftId(draft.id);
+      await saveDraftCheckpoint(draftSnapshot, draft.id);
+
+      await publishJob.mutateAsync(draft.id);
+      await clearDraftCheckpoint();
+
+      analyticsService.track('draft_publish_success', {
+        jobId: draft.id,
       });
-      await publishJob.mutateAsync(job.id);
+
       Alert.alert('Gelukt!', 'Je opdracht is gepubliceerd.', [
         { text: 'OK', onPress: () => navigation.goBack() },
       ]);
-    } catch {
-      // error handled by hooks
+    } catch (error) {
+      const parsed = parseApiError(error);
+      analyticsService.track('draft_publish_failed', {
+        code: parsed.code,
+        status: parsed.status,
+      });
+
+      if (parsed.code === 'PUBLISH_GATE_RATE_LIMITED') {
+        Alert.alert(
+          'Even wachten',
+          'Je hebt net een publicatie geprobeerd. Wacht een paar seconden en probeer opnieuw.',
+        );
+        return;
+      }
+
+      if (parsed.code === 'PUBLISH_GATE_OTP_REQUIRED') {
+        Alert.alert(
+          'Telefoonverificatie vereist',
+          'Verifieer eerst je telefoonnummer om te kunnen publiceren.',
+        );
+        return;
+      }
+
+      if (parsed.code === 'PUBLISH_GATE_INSUFFICIENT_CREDITS') {
+        Alert.alert(
+          'Onvoldoende credits',
+          'Publiceren kost 1 credit. Bekijk je abonnementen om credits toe te voegen.',
+          [
+            { text: 'Later', style: 'cancel' },
+            {
+              text: 'Bekijk abonnementen',
+              onPress: () => navigation.navigate('ProfileTab', { screen: 'Plans' }),
+            },
+          ],
+        );
+        return;
+      }
+
+      Alert.alert('Publiceren mislukt', parsed.message || 'Probeer het opnieuw.');
     } finally {
       setPublishing(false);
     }
   };
 
   const subcatObj = SUBCATEGORIES.find(s => s.key === subcategory);
+
+  const confirmPublish = () => {
+    Alert.alert(
+      'Publiceren bevestigen',
+      'Publiceren kost 1 credit. Weet je zeker dat je wilt doorgaan?',
+      [
+        { text: 'Annuleren', style: 'cancel' },
+        {
+          text: 'Publiceren',
+          onPress: () => {
+            handlePublish();
+          },
+        },
+      ],
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -160,6 +310,9 @@ export const CreateJobScreen: React.FC = () => {
         {step === 0 && (
           <>
             <Text style={styles.stepTitle}>Welk type werk?</Text>
+            {validationErrors.subcategory ? (
+              <Text style={styles.validationError}>{validationErrors.subcategory}</Text>
+            ) : null}
             <View style={styles.grid}>
               {SUBCATEGORIES.map(s => (
                 <TouchableOpacity
@@ -195,6 +348,9 @@ export const CreateJobScreen: React.FC = () => {
         {step === 1 && (
           <>
             <Text style={styles.stepTitle}>Hoe dringend?</Text>
+            {validationErrors.urgency ? (
+              <Text style={styles.validationError}>{validationErrors.urgency}</Text>
+            ) : null}
             {URGENCY_OPTIONS.map(u => (
               <TouchableOpacity
                 key={u.key}
@@ -235,6 +391,7 @@ export const CreateJobScreen: React.FC = () => {
               value={postcode}
               onChangeText={setPostcode}
               leftIcon="map-marker"
+              error={validationErrors.postcode}
             />
             <Input
               label="Stad"
@@ -242,6 +399,7 @@ export const CreateJobScreen: React.FC = () => {
               value={city}
               onChangeText={setCity}
               leftIcon="city"
+              error={validationErrors.city}
             />
           </>
         )}
@@ -258,6 +416,7 @@ export const CreateJobScreen: React.FC = () => {
               minChars={5}
               maxChars={120}
               maxLength={120}
+              error={validationErrors.title}
             />
             <Input
               label="Omschrijving"
@@ -270,6 +429,7 @@ export const CreateJobScreen: React.FC = () => {
               numberOfLines={5}
               maxLength={DESCRIPTION_MAX_CHARS}
               style={styles.descriptionInput}
+              error={validationErrors.description}
             />
           </>
         )}
@@ -293,6 +453,9 @@ export const CreateJobScreen: React.FC = () => {
         {step === 5 && (
           <>
             <Text style={styles.stepTitle}>Budget</Text>
+            {validationErrors.budgetType ? (
+              <Text style={styles.validationError}>{validationErrors.budgetType}</Text>
+            ) : null}
             <View style={styles.grid}>
               {BUDGET_TYPES.map(b => (
                 <TouchableOpacity
@@ -323,6 +486,7 @@ export const CreateJobScreen: React.FC = () => {
                   setBudgetAmount(sanitizeNumberInput(value))
                 }
                 keyboardType="numeric"
+                error={validationErrors.budgetAmount}
               />
             )}
             {budgetType === 'hourly' && (
@@ -334,6 +498,7 @@ export const CreateJobScreen: React.FC = () => {
                   setBudgetAmount(sanitizeNumberInput(value))
                 }
                 keyboardType="numeric"
+                error={validationErrors.budgetAmount}
               />
             )}
             {budgetType === 'range' && (
@@ -342,20 +507,22 @@ export const CreateJobScreen: React.FC = () => {
                   label="Minimum (€)"
                   placeholder="100"
                   value={budgetMin}
-                  onChangeText={value =>
-                    setBudgetMin(sanitizeNumberInput(value))
-                  }
-                  keyboardType="numeric"
-                />
+                    onChangeText={value =>
+                      setBudgetMin(sanitizeNumberInput(value))
+                    }
+                    keyboardType="numeric"
+                    error={validationErrors.budgetMin}
+                  />
                 <Input
                   label="Maximum (€)"
                   placeholder="500"
                   value={budgetMax}
-                  onChangeText={value =>
-                    setBudgetMax(sanitizeNumberInput(value))
-                  }
-                  keyboardType="numeric"
-                />
+                    onChangeText={value =>
+                      setBudgetMax(sanitizeNumberInput(value))
+                    }
+                    keyboardType="numeric"
+                    error={validationErrors.budgetMax}
+                  />
               </>
             )}
           </>
@@ -508,6 +675,10 @@ export const CreateJobScreen: React.FC = () => {
               variant="warning"
               icon="alert-circle"
             />
+            <Text style={styles.creditTransparencyText}>
+              Bij publicatie wordt direct 1 credit afgeschreven. Als publicatie faalt,
+              wordt er geen extra credit verbruikt.
+            </Text>
           </>
         )}
       </ScrollView>
@@ -531,7 +702,7 @@ export const CreateJobScreen: React.FC = () => {
         ) : (
           <Button
             title="Publiceren"
-            onPress={handlePublish}
+            onPress={confirmPublish}
             loading={publishing}
           />
         )}
@@ -554,6 +725,11 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textSecondary,
     marginBottom: spacing.xl,
+  },
+  validationError: {
+    ...typography.small,
+    color: colors.error,
+    marginBottom: spacing.sm,
   },
   grid: {
     flexDirection: 'row',
@@ -633,6 +809,11 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
   },
   reviewValue: { ...typography.body, color: colors.textPrimary },
+  creditTransparencyText: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    marginTop: spacing.sm,
+  },
   descriptionInput: { height: 120, textAlignVertical: 'top' },
   footer: {
     flexDirection: 'row',

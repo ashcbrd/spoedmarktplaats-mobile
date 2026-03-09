@@ -11,38 +11,40 @@ import { useCreditsStore } from '../../store/creditsStore';
 import { creditsApi } from '../../api/endpoints/credits';
 import { CREDIT_COSTS } from '../../config/constants';
 import { relativeTime } from '../../utils/date';
-
-const COST_LABELS: Record<string, string> = {
-  PUBLISH_JOB: 'Opdracht publiceren',
-  BOOST_24H: 'Boost 24 uur',
-  PING_TOP_5: 'Ping Top 5',
-  EXTEND_6H: 'Verleng +6 uur',
-  EXTEND_24H: 'Verleng +24 uur',
-  REPOST_JOB: 'Opnieuw plaatsen',
-  PLACE_BID: 'Bod plaatsen',
-};
+import { useI18n } from '../../i18n/I18nProvider';
 
 export const CreditsScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const {t} = useI18n();
   const balance = useCreditsStore(s => s.balance);
   const { data: txData } = useQuery({
     queryKey: ['credits', 'transactions'],
     queryFn: () => creditsApi.transactions(),
   });
 
+  const COST_LABELS: Record<string, string> = {
+    PUBLISH_JOB: t('Opdracht publiceren'),
+    BOOST_24H: t('Boost 24 uur'),
+    PING_TOP_5: t('Ping Top 5'),
+    EXTEND_6H: t('Verleng +6 uur'),
+    EXTEND_24H: t('Verleng +24 uur'),
+    REPOST_JOB: t('Opnieuw plaatsen'),
+    PLACE_BID: t('Bod plaatsen'),
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Balance card */}
       <Card style={styles.balanceCard}>
-        <Text style={styles.balanceLabel}>Huidige balans</Text>
+        <Text style={styles.balanceLabel}>{t('Huidige balans')}</Text>
         <Text style={styles.balanceValue}>{balance}</Text>
-        <Text style={styles.balanceUnit}>credits</Text>
+        <Text style={styles.balanceUnit}>{t('credits')}</Text>
         <Button
-          title="Credits kopen"
+          title={t('Credits kopen')}
           onPress={() =>
             Alert.alert(
-              'Credits kopen',
-              'Betaling wordt extern afgehandeld in de MVP.',
+              t('Credits kopen'),
+              t('Betaling wordt extern afgehandeld in de MVP.'),
             )
           }
           style={styles.buyBtn}
@@ -50,7 +52,7 @@ export const CreditsScreen: React.FC = () => {
       </Card>
 
       {/* Cost reference */}
-      <Text style={styles.sectionTitle}>Credit kosten</Text>
+      <Text style={styles.sectionTitle}>{t('Credit kosten')}</Text>
       <Card>
         {Object.entries(CREDIT_COSTS).map(([key, cost]) => (
           <View key={key} style={styles.costRow}>
@@ -63,7 +65,7 @@ export const CreditsScreen: React.FC = () => {
       </Card>
 
       {/* Transaction history */}
-      <Text style={styles.sectionTitle}>Transactiegeschiedenis</Text>
+      <Text style={styles.sectionTitle}>{t('Transactiegeschiedenis')}</Text>
       {txData?.data && txData.data.length > 0 ? (
         txData.data.map(tx => (
           <View key={tx.id} style={styles.txRow}>
@@ -83,11 +85,11 @@ export const CreditsScreen: React.FC = () => {
           </View>
         ))
       ) : (
-        <Text style={styles.emptyText}>Nog geen transacties</Text>
+        <Text style={styles.emptyText}>{t('Nog geen transacties')}</Text>
       )}
 
       <Button
-        title="Bekijk abonnementen"
+        title={t('Bekijk abonnementen')}
         onPress={() => navigation.navigate('Plans')}
         variant="outline"
         style={styles.plansBtn}

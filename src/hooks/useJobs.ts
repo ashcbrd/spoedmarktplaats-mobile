@@ -5,8 +5,11 @@ import {
   useInfiniteQuery,
 } from '@tanstack/react-query';
 import { jobsApi } from '../api/endpoints/jobs';
-import type { JobFilters } from '../types/models';
+import type { Job, JobFilters } from '../types/models';
 import { showErrorAlert } from '../utils/errorHandling';
+
+const makeIdempotencyKey = (): string =>
+  `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
 export const useJobFeed = (filters?: JobFilters) =>
   useInfiniteQuery({
@@ -41,14 +44,33 @@ export const useCreateJob = () => {
   });
 };
 
+export const useUpdateDraftJob = () => {
+  return useMutation({
+    mutationFn: ({ jobId, body }: { jobId: string; body: Partial<Job> }) =>
+      jobsApi.updateDraft(jobId, body),
+    onError: e => showErrorAlert(e),
+  });
+};
+
 export const usePublishJob = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: jobsApi.publish,
+    mutationFn: async (jobId: string) => {
+      const idempotencyKey = makeIdempotencyKey();
+      try {
+        return await jobsApi.publish(jobId, { idempotencyKey });
+      } catch (error: any) {
+        const isNetworkError = !error?.response;
+        if (isNetworkError) {
+          return jobsApi.publish(jobId, { idempotencyKey });
+        }
+        throw error;
+      }
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['jobs'] });
+      qc.invalidateQueries({ queryKey: ['credits', 'balance'] });
     },
-    onError: e => showErrorAlert(e),
   });
 };
 

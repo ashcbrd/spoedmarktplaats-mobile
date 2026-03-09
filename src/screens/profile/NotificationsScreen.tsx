@@ -16,6 +16,7 @@ import { typography } from '../../theme/typography';
 import { spacing } from '../../theme/spacing';
 import { useNotifications } from '../../hooks/useNotifications';
 import { relativeTime } from '../../utils/date';
+import { useI18n } from '../../i18n/I18nProvider';
 import type { AppNotification, NotificationType } from '../../types/models';
 
 const NOTIF_ICONS: Record<NotificationType, ComponentProps<typeof Icon>['name']> = {
@@ -35,6 +36,7 @@ const NOTIF_ICONS: Record<NotificationType, ComponentProps<typeof Icon>['name']>
 
 export const NotificationsScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const {t} = useI18n();
   const { notifications, isLoading, markRead, markAllRead, unreadCount } =
     useNotifications();
 
@@ -84,7 +86,7 @@ export const NotificationsScreen: React.FC = () => {
       {unreadCount > 0 && (
         <View style={styles.headerAction}>
           <Button
-            title="Alles gelezen"
+            title={t('Alles gelezen')}
             onPress={markAllRead}
             variant="ghost"
             size="sm"
@@ -98,8 +100,8 @@ export const NotificationsScreen: React.FC = () => {
         ListEmptyComponent={
           <EmptyState
             icon="bell-off-outline"
-            title="Geen meldingen"
-            message="Je hebt nog geen meldingen ontvangen"
+            title={t('Geen meldingen')}
+            message={t('Je hebt nog geen meldingen ontvangen')}
           />
         }
       />
